@@ -27,7 +27,7 @@ body {
 }
 
 .admin-navbar .nav-link:hover {
-    color: #adb5bd;
+    color: green;
 }
 
 .admin-navbar .logout {
@@ -53,3 +53,14 @@ h1 {
         margin-right: 10px;
     }
 }
+
+.container-fluid{
+    display : flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.navbar-brand, .nav-link{
+    color : white !important;
+}
+
