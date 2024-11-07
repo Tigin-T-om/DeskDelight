@@ -1,0 +1,40 @@
+body{
+    color : white;
+    background-color: #212429;
+}
+
+.nav-link, .cart-navbar, .navbar-brand{
+    color : white;
+}
+
+nav {
+    border-bottom : white 1px solid;
+}
+
+.shoppingCart table{
+    color : white;
+}
+
+.form-control{
+    background : #212429;
+    color : white;
+}
+
+
+
+/* Footer */
+footer {
+    background-color: #ffffff;
+    border-top: 2px solid #e0e0e0;
+    padding: 2rem 0;
+    text-align: center;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+footer p {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin: 0;
+}

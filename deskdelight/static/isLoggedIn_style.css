@@ -1,0 +1,212 @@
+/* General Styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    color: #333;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+}
+
+/* Navbar Styles */
+.navbar {
+    background-color: #724949;
+    border-bottom: 2px solid #cea7a7;
+    padding: 1rem 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    color : white !important;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: #333;
+    color : white !important;
+}
+
+.nav-link {
+    color: #007bff;
+    font-size: 1.1rem;
+    transition: color 0.3s ease;
+    color : white !important;
+}
+
+.nav-link:hover {
+    color: #0056b3;
+    color : rgb(50, 252, 50) !important;
+}
+
+.navbar-toggler {
+    border: none;
+}
+
+/* Hero Section */
+.jumbotron {
+    background: linear-gradient(135deg, #4c8cfa, #6ea8ff);
+    color: white;   
+    padding: 4rem 2rem;
+    border-radius: 12px;
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
+    text-align: center;
+    transition: 0.3s ease-in-out;
+}
+
+/* .jumbotron:hover{
+    filter:opacity(100%)
+} */
+.jumbotron h1 {
+    font-size: 3rem;
+    font-weight: bold;
+}
+
+.jumbotron p {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+}
+
+.jumbotron .btn {
+    background-color: #ffffff;
+    color: #4c8cfa;
+    font-weight: bold;
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+}
+
+.jumbotron .btn:hover {
+    background-color: #f4f7fc;
+    color: #0056b3;
+}
+
+/* Card Styles */
+.card {
+    border: none;
+    border-radius: 15px;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    overflow: hidden;
+}
+
+/* .card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);  
+} */
+
+.img-top {
+    border-radius: 15px 15px 0 0;
+    height: 200px;
+    object-fit:fill;
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color : black;
+}
+
+.card-text {
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+}
+
+.price {
+    font-size: 1.4rem;
+    color: #28a745;
+    font-weight: bold;
+}
+
+.btn-outline-primary {
+    border-radius: 30px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+    background-color: #4c8cfa;
+    color: #ffffff;
+    border-color: #4c8cfa;
+}
+
+/* Footer */
+footer {
+    background-color: #ffffff;
+    border-top: 2px solid #e0e0e0;
+    padding: 2rem 0;
+    text-align: center;
+    position: absolute;
+    bottom : 0;
+    width : 100%;
+}
+
+footer p {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card {
+    animation: fadeInUp 0.5s ease-in-out;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .jumbotron h1 {
+        font-size: 2.2rem;
+    }
+
+    .jumbotron p {
+        font-size: 1rem;
+    }
+
+    .card-img-top {
+        height: 150px;
+    }
+}
+
+
+/* body{
+    background-color: #212529;
+    color : white !important;
+} */
+
+
+.mainHeading, .emailAddr, .Password, .rememberMe{
+    color : black;
+}
+
+.img-wrapper {
+    text-align: center; /* Center the image in the wrapper */
+}
+
+.card-img-top {
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto; /* Centers the image in the card */
+    display: block;
+}
+
+.deaccount, .usernme, .emailaddress, .phnumber, .address, .password, .confirm_password {
+    color: #000;
+}
+
+
+.registerBox{
+    transform: scale(70%);
+}
+
+.container{
+    text-align: center;
+}
