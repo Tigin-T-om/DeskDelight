@@ -1,0 +1,77 @@
+/* General Styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    color: #333;
+}
+
+.container {
+    max-width: 1200px;
+    margin-top: 80px;
+}
+
+/* Navbar Styles */
+.navbar-nav .nav-link {
+    color: #fff !important;
+}
+
+.navbar-nav .nav-link.active {
+    color: #00c853 !important;
+}
+
+/* Contact Form Styles */
+.card {
+    border: none;
+    border-radius: 10px;
+}
+
+.card-body {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 10px;
+}
+
+h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+}
+
+.form-control {
+    border-radius: 10px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    box-shadow: none;
+}
+
+.form-control:focus {
+    border-color: #00c853;
+    box-shadow: 0 0 0 0.25rem rgba(0, 196, 83, 0.25);
+}
+
+.btn-primary {
+    background-color: #00c853;
+    border: none;
+    padding: 12px;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    width: 100%;
+}
+
+.btn-primary:hover {
+    background-color: #00b14a;
+}
+
+.alert {
+    margin-top: 20px;
+}
+
+/* Footer Styles */
+footer {
+    background-color: #343a40;
+    color: white;
+    padding: 10px 0;
+}
+
+footer p {
+    margin-bottom: 0;
+}

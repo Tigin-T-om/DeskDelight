@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from .models import Product
+from django.contrib.auth.decorators import login_required
 
 User = get_user_model()  # Use the custom user model if available
 
@@ -26,12 +27,22 @@ def login_page(request):
 def cart_page(request):
     return render(request,'user_cart.html')
 
+def contact_page(request):
+    return render(request, 'contact.html')
+
 def product_page(request):
-    products = Product.objects.all()  # Fetch all products
-    return render(request, 'product.html', {'products': products})
+    # Get the category from the query parameters (optional, default to 'chair')
+    category = request.GET.get('category', 'chair')
+    
+    # Filter products based on the selected category
+    products = Product.objects.filter(category=category)
+    
+    return render(request, 'product.html', {'products': products, 'category': category})
 
 def register(request):
     if request.method == 'POST':
+        fname = request.POST.get("fname")
+        lname = request.POST.get("lname")
         username = request.POST.get('username')
         email = request.POST.get('email')
         password = request.POST.get('password')
@@ -62,6 +73,8 @@ def register(request):
             phone_number=phone_number,  # Set custom fields
             address=address
         )
+        user.first_name = fname
+        user.last_name = lname
         user.save()
 
         messages.success(request, "Account created successfully. Please log in.")
@@ -98,3 +111,23 @@ def logout_view(request):
     return redirect('index')
 
 
+@login_required
+def user_profile(request):
+    if request.method == 'POST':
+        # Get current user
+        user = request.user
+
+        # Update user details
+        user.username = request.POST.get('username')
+        user.email = request.POST.get('email')
+        user.phone_number = request.POST.get('phone_number')
+        user.address = request.POST.get('address')
+
+        # Save the updated details
+        user.save()
+        
+        messages.success(request, "Your profile has been updated successfully.")
+        return redirect('user_profile')  # Redirect to profile page
+
+    # Show user profile details
+    return render(request, 'user_profile.html', {'user': request.user})
