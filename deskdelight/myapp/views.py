@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from .models import Product
 from django.contrib.auth.decorators import login_required
+import re
 
 User = get_user_model()  # Use the custom user model if available
 
@@ -49,6 +50,22 @@ def register(request):
         confirm_password = request.POST.get('confirm_password')
         phone_number = request.POST.get('phone_number')
         address = request.POST.get('address')
+
+        # Username validation: Only alphabets
+        if not username.isalpha():
+            messages.error(request, "Username should only contain alphabetic characters.")
+            return render(request, 'register.html')
+        
+        # Phone number validation: Only numbers
+        if not phone_number.isdigit():
+            messages.error(request, "Phone number should only contain numeric characters.")
+            return render(request, 'register.html')
+        
+        # Email validation: Check if email is valid
+        email_regex = r'^[\w\.-]+@[\w\.-]+\.\w+$'
+        if not re.match(email_regex, email):
+            messages.error(request, "Please enter a valid email address.")
+            return render(request, 'register.html')
 
         # Check if passwords match
         if password != confirm_password:
