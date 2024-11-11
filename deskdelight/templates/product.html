@@ -95,8 +95,8 @@
                         <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
                         <div class="card-body">
                             <h5 class="card-title productTitle">{{ product.name }}</h5>
-                            <p class="card-text">{{ product.description }}</p>
                             <p class="text-success">${{ product.price }}</p>
+                            <a href="{% url 'product_detail' product.id %}" class="btn btn-primary">View Details</a>
                             <a href="#" class="btn btn-primary">Add to Cart</a>
                         </div>
                     </div>

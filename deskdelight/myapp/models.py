@@ -1,12 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-# Create your models here.
+
+# Custom user model
 class CustomUser(AbstractUser):
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
 
 class Product(models.Model):
-    # Define the choices for categories
     CATEGORY_CHOICES = [
         ('chair', 'Chair'),
         ('table', 'Table'),
@@ -21,6 +21,16 @@ class Product(models.Model):
         choices=CATEGORY_CHOICES,
         default='chair'
     )
+    quantity_available = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return f'{self.name} ({self.get_category_display()})'
+
+class Cart(models.Model):
+    # Use CustomUser instead of User
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+
+    def __str__(self):
+        return f'{self.user.username} - {self.product.name} - {self.quantity}'
