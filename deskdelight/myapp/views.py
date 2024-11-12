@@ -4,11 +4,20 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from .models import Product, Cart
 from django.contrib.auth.decorators import login_required
-import re
 from django.contrib.auth.models import User  # Default User model
 from .models import Product, Cart
-from .models import Cart
-
+from django.http import HttpResponse
+import re
+from django.contrib.auth.hashers import make_password
+from django.core.mail import send_mail
+from django.conf import settings
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.core.mail import send_mail
+from django.utils.crypto import get_random_string
+from django.contrib.auth.models import User
+from django.http import JsonResponse
+import random
 
 
 User = get_user_model()  # Use custom user model if available
@@ -200,13 +209,11 @@ def admin_login(request):
 
     return render(request, 'admin_login.html')
 
-
 def admin_logout(request):
     """Logout admin."""
     request.session['is_admin'] = False  # Remove admin session flag
     messages.success(request, "Admin logged out successfully.")
     return redirect('admin_login')
-
 
 def admin_dashboard(request):
     """Admin dashboard to manage users and products."""
@@ -216,7 +223,6 @@ def admin_dashboard(request):
     products = Product.objects.all()
     users = User.objects.exclude(username='admin')  # Exclude admin user
     return render(request, 'admin_dashboard.html', {'products': products, 'users': users})
-
 
 def add_product(request):
     """Allow admin to add a new product."""
@@ -244,7 +250,6 @@ def add_product(request):
 
     return render(request, 'add_product.html')
 
-
 def edit_product(request, product_id):
     """Edit an existing product."""
     if not request.session.get('is_admin'):
@@ -266,7 +271,6 @@ def edit_product(request, product_id):
 
     return render(request, 'edit_product.html', {'product': product})
 
-
 def delete_product(request, product_id):
     """Delete a product."""
     if not request.session.get('is_admin'):
@@ -276,7 +280,6 @@ def delete_product(request, product_id):
     product.delete()
     messages.success(request, "Product deleted successfully!")
     return redirect('admin_dashboard')
-
 
 def manage_users(request):
     """Allow admin to manage users (activate/deactivate)."""
@@ -324,24 +327,9 @@ def add_to_cart(request, product_id):
         messages.warning(
             request, f"Cart updated to maximum available quantity ({product.quantity_available})."
         )
-
     cart_item.save()
     messages.success(request, f"Added {cart_item.quantity} x {product.name} to your cart.")
     return redirect('cart_page')
-
-@login_required
-def cart_page(request):
-    # Get cart items for the logged-in user
-    cart_items = CartItem.objects.filter(user=request.user)
-    
-    # Calculate the total price of the cart
-    total_price = sum(item.product.price * item.quantity for item in cart_items)
-    
-    context = {
-        'cart_items': cart_items,
-        'total_price': total_price
-    }
-    return render(request, 'user_cart.html', context)
 
 @login_required
 def admin_set_quantity(request, product_id):
@@ -367,7 +355,7 @@ def cart_page(request):
 def checkout_view(request):
     # Your checkout logic here
     return render(request, 'checkout.html')
-from django.http import HttpResponse
+
 def remove_from_cart(request, item_id):
     try:
         # Find the cart item by its ID (using the Cart model)
@@ -377,3 +365,122 @@ def remove_from_cart(request, item_id):
         return HttpResponse('Item not found in the cart', status=404)
 
     return redirect('cart_page')  # Redirect back to the cart page
+
+# Store OTP temporarily (or better use a model for persistence)
+otp_storage = {}
+
+# Forgot Password: Send OTP
+def forgot_password(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        if User.objects.filter(email=email).exists():
+            otp = get_random_string(length=6, allowed_chars='1234567890')  # Generate numeric OTP
+            otp_storage[email] = otp
+            send_mail(
+                'Your OTP for Password Reset',
+                f'Your OTP is {otp}.',
+                'noreply@deskdelight.com',
+                [email],
+                fail_silently=False,
+            )
+            messages.success(request, 'OTP sent to your email!')
+            return redirect('verify_otp')
+        else:
+            messages.error(request, 'Email not found.')
+    return render(request, 'forgot_password.html')
+
+
+def send_otp(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        
+        # Check if email exists in the system
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            messages.error(request, "Email not registered!")
+            return redirect('forgot_password_page')
+        
+        # Generate OTP
+        otp = random.randint(100000, 999999)
+
+        # Send OTP to user's email
+        subject = 'Password Reset OTP'
+        message = f'Your OTP for password reset is {otp}'
+        from_email = settings.EMAIL_HOST_USER
+        recipient_list = [email]
+
+        try:
+            send_mail(subject, message, from_email, recipient_list)
+            request.session['otp'] = otp  # Store OTP in session for verification
+            request.session['email'] = email  # Store email for verification
+            return redirect('verify_otp')  # Redirect to OTP verification page
+        except Exception as e:
+            messages.error(request, "Error sending OTP. Please try again.")
+            return redirect('forgot_password_page')
+    return render(request, 'send_otp.html')
+
+def forgot_password_page(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        if User.objects.filter(email=email).exists():
+            # Generate OTP
+            otp = random.randint(100000, 999999)
+
+            # Save OTP in session or database
+            request.session['otp'] = otp
+            request.session['email'] = email
+
+            # Send OTP email
+            send_mail(
+                'Your OTP for Password Reset',
+                f'Your OTP is {otp}.',
+                'noreply@deskdelight.com',
+                [email],
+                fail_silently=False,
+            )
+
+            messages.success(request, 'OTP sent to your email!')
+            return redirect('verify_otp')  # Redirect to OTP verification page
+        else:
+            messages.error(request, 'Email not found.')
+    return render(request, 'forgot_password.html')
+
+
+# Verify OTP Page
+def verify_otp(request):
+    if request.method == 'POST':
+        email = request.session.get('email')
+        entered_otp = request.POST.get('otp')
+
+        # Validate OTP
+        if email and int(entered_otp) == request.session.get('otp'):
+            messages.success(request, 'OTP verified! Reset your password.')
+            return redirect('reset_password')
+        else:
+            messages.error(request, 'Invalid OTP or email.')
+    return render(request, 'verify_otp.html')
+
+
+# Reset Password Page
+def reset_password(request):
+    if request.method == 'POST':
+        email = request.session.get('email')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+
+        if new_password == confirm_password:
+            try:
+                # Update user password
+                user = User.objects.get(email=email)
+                user.set_password(new_password)
+                user.save()
+
+                messages.success(request, 'Password successfully reset. You can now log in.')
+                return redirect('login_page')  # Redirect to login page
+            except User.DoesNotExist:
+                messages.error(request, 'User does not exist.')
+        else:
+            messages.error(request, 'Passwords do not match.')
+
+    return render(request, 'reset_password.html')

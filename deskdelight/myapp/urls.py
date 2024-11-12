@@ -7,7 +7,6 @@ urlpatterns = [
     path('register', views.register, name="register"),
     path('login_page', views.login_page, name="login_page"),
     path('login_view', views.login_view, name="login_view"),
-    path('cart_page', views.cart_page, name="cart_page"),
     path('product_page', views.product_page, name='product_page'),
     path('product/<int:product_id>/', views.product_detail, name='product_detail'),  # Product detail view
     path('isLoggedIn', views.isLoggedIn, name='isLoggedIn'),
@@ -19,5 +18,14 @@ urlpatterns = [
     path('cart_page/', views.cart_page, name='cart_page'),
     path('checkout/', views.checkout_view, name='checkout'),
     path('cart/remove/<int:item_id>/', views.remove_from_cart, name='remove_from_cart'),
+
+    # Password Reset URLs
+    path('forgot_password/', views.forgot_password_page, name='forgot_password_page'),
+    path('send_otp/', views.send_otp, name='send_otp'),
+    path('verify_otp/', views.verify_otp, name='verify_otp'),
+    path('reset_password/', views.reset_password, name='reset_password'),
+
+
+
 
 ]
