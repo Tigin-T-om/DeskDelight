@@ -76,12 +76,8 @@ WSGI_APPLICATION = 'deskdelight.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'deskdelight',
-        'USER':'root',
-        'PASSWORD':'',
-        'HOST':'localhost',
-        'PORT':'3306',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 AUTH_USER_MODEL = 'myapp.CustomUser'
@@ -135,3 +131,4 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'tigintom158@gmail.com'  # Replace with your email
 EMAIL_HOST_PASSWORD = 'jfmq seji ccmb ddwt'    # Replace with your app-specific password
+AUTH_USER_MODEL = 'myapp.CustomUser'

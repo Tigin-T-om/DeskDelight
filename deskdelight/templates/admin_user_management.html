@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management</title>
+    <link rel="stylesheet" href="{% static 'admin_user_management.css' %}">
+</head>
+<body style="text-align: center; font-family: Arial, sans-serif;">
+
+    <h1>User Management</h1>
+    <table border="1" style="margin: auto; width: 80%; border-collapse: collapse;">
+        <thead>
+            <tr style="background-color: #f4f4f4;">
+                <th>ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Phone Number</th>
+                <th>Address</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.phone_number }}</td>
+                <td>{{ user.address }}</td>
+                <td>
+                    <form method="POST" action="{% url 'user_management' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="user_id" value="{{ user.id }}">
+                        <button type="submit" style="color: white; background-color: red; border: none; padding: 5px 10px;">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6">No users found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{% url 'adminPage' %}" style="margin-top: 20px; display: inline-block;">Back to Admin Dashboard</a>
+</body>
+</html>

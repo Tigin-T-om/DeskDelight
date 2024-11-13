@@ -20,7 +20,7 @@ from django.http import JsonResponse
 import random
 
 
-User = get_user_model()  # Use custom user model if available
+# User = get_user_model()  # Use custom user model if available
 
 # -----------------------------
 # Public Views
@@ -95,15 +95,15 @@ def register(request):
             return render(request, 'register.html')
 
         # Check if username or email already exists
-        if User.objects.filter(username=username).exists():
+        if CustomUser.objects.filter(username=username).exists():
             messages.error(request, "Username already exists.")
             return render(request, 'register.html')
-        if User.objects.filter(email=email).exists():
+        if CustomUser.objects.filter(email=email).exists():
             messages.error(request, "Email already exists.")
             return render(request, 'register.html')
 
         # Create the user
-        user = User.objects.create_user(
+        user = CustomUser.objects.create_user(
             username=username,
             email=email,
             password=password
@@ -119,28 +119,42 @@ def register(request):
 
     return render(request, 'register.html')
 
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
+from django.shortcuts import render, redirect
+from django.contrib import messages
+
+CustomUser = get_user_model()  # Dynamically retrieve the active user model
+
 def login_view(request):
-    """Handle user login."""
+    """Handle user and admin login."""
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
 
         # Authenticate using email
         try:
-            user = User.objects.get(email=email)
+            user = CustomUser.objects.get(email=email)  # Use CustomUser
             user = authenticate(request, username=user.username, password=password)
-        except User.DoesNotExist:
+        except CustomUser.DoesNotExist:
             user = None
 
         if user is not None:
-            login(request, user)
-            messages.success(request, "Logged in successfully.")
-            return redirect('isLoggedIn')
+            # Check if the user is staff
+            if user.is_staff:
+                login(request, user)
+                messages.success(request, "Admin logged in successfully.")
+                return redirect('adminPage')  # Redirect to admin dashboard
+            else:
+                login(request, user)
+                messages.success(request, "Logged in successfully.")
+                return redirect('isLoggedIn')  # Redirect to user dashboard or home
         else:
             messages.error(request, "Invalid email or password.")
             return render(request, 'user_login.html')
 
     return render(request, 'user_login.html')
+
 
 def logout_view(request):
     """Handle user logout."""
@@ -484,3 +498,25 @@ def reset_password(request):
             messages.error(request, 'Passwords do not match.')
 
     return render(request, 'reset_password.html')
+
+def is_admin(user):
+    return user.is_staff
+
+from django.contrib.auth.decorators import login_required, user_passes_test
+
+@login_required
+@user_passes_test(is_admin)
+def user_management(request):
+    """Display all users and allow admin to delete users."""
+    users = CustomUser.objects.filter(is_staff=False)  # Exclude admins
+    if request.method == 'POST':
+        user_id = request.POST.get('user_id')
+        try:
+            user_to_delete = CustomUser.objects.get(id=user_id)
+            user_to_delete.delete()
+            messages.success(request, "User deleted successfully.")
+        except CustomUser.DoesNotExist:
+            messages.error(request, "User not found.")
+        return redirect('user_management')
+    
+    return render(request, 'admin_user_management.html', {'users': users})
