@@ -1,0 +1,25 @@
+form {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+form .form-control {
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+form label {
+    font-weight: bold;
+}
+
+form .btn {
+    margin: 10px 5px;
+}
+
+.img-thumbnail {
+    border-radius: 8px;
+    max-height: 150px;
+    object-fit: cover;
+}

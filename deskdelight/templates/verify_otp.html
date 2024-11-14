@@ -1,17 +1,26 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <link rel="stylesheet" href="{% static 'css/verify_otp.css' %}">
-    <title>Verify OTP</title>
-</head>
-<body>
-    <h2>Verify OTP</h2>
-    <form method="POST">
-        {% csrf_token %}
-        <label for="otp">Enter OTP:</label>
-        <input type="text" name="otp" required>
-        <button type="submit">Verify OTP</button>
-    </form>
-</body>
-</html>
+
+{% block title %}Verify OTP{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title text-center">Verify OTP</h2>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="otp" class="form-label">Enter OTP:</label>
+                            <input type="text" name="otp" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Verify OTP</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

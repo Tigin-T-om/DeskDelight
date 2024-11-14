@@ -239,8 +239,9 @@ def admin_dashboard(request):
     return render(request, 'admin_dashboard.html', {'products': products, 'users': users})
 
 def add_product(request):
-    """Allow admin to add a new product."""
-    if not request.session.get('is_admin'):
+    """Allow custom admin to add a new product."""
+    if not request.user.is_authenticated or not request.user.is_staff:
+        messages.error(request, "You are not authorized to add products.")
         return redirect('admin_login')
 
     if request.method == 'POST':
@@ -248,25 +249,34 @@ def add_product(request):
         description = request.POST.get('description')
         price = request.POST.get('price')
         category = request.POST.get('category')
+        quantity_available = request.POST.get('quantity_available')
         image = request.FILES.get('image')  # Handle uploaded image
 
         # Validate required fields
-        if not name or not price or not category:
+        if not name or not price or not category or not quantity_available:
             messages.error(request, "All fields are required.")
-            return render(request, 'add_product.html')
+            return render(request, 'admin_add_product.html')
 
         # Save the product
-        product = Product(name=name, description=description, price=price, category=category, image=image)
+        product = Product(
+            name=name,
+            description=description,
+            price=price,
+            category=category,
+            quantity_available=quantity_available,
+            image=image
+        )
         product.save()
 
         messages.success(request, "Product added successfully!")
-        return redirect('admin_dashboard')
+        return redirect('product_management')
 
-    return render(request, 'add_product.html')
+    return render(request, 'admin_add_product.html')
 
 def edit_product(request, product_id):
-    """Edit an existing product."""
-    if not request.session.get('is_admin'):
+    """Allow custom admin to edit an existing product."""
+    if not request.user.is_authenticated or not request.user.is_staff:
+        messages.error(request, "You are not authorized to edit products.")
         return redirect('admin_login')
 
     product = get_object_or_404(Product, id=product_id)
@@ -276,24 +286,36 @@ def edit_product(request, product_id):
         product.description = request.POST.get('description')
         product.price = request.POST.get('price')
         product.category = request.POST.get('category')
+        product.quantity_available = request.POST.get('quantity_available')
         if request.FILES.get('image'):
             product.image = request.FILES.get('image')  # Update image if uploaded
 
         product.save()
         messages.success(request, "Product updated successfully!")
-        return redirect('admin_dashboard')
+        return redirect('product_management')
 
-    return render(request, 'edit_product.html', {'product': product})
+    return render(request, 'admin_product_edit.html', {'product': product})
+
 
 def delete_product(request, product_id):
-    """Delete a product."""
-    if not request.session.get('is_admin'):
+    """Allow custom admin to delete a product."""
+    if not request.user.is_authenticated or not request.user.is_staff:
+        messages.error(request, "You are not authorized to delete products.")
         return redirect('admin_login')
 
     product = get_object_or_404(Product, id=product_id)
     product.delete()
     messages.success(request, "Product deleted successfully!")
-    return redirect('admin_dashboard')
+    return redirect('product_management')
+
+def product_management(request):
+    """Display a list of products for the admin."""
+    if not request.user.is_authenticated or not request.user.is_staff:
+        messages.error(request, "You are not authorized to view this page.")
+        return redirect('admin_login')
+
+    products = Product.objects.all()
+    return render(request, 'admin_product_management.html', {'products': products})
 
 def manage_users(request):
     """Allow admin to manage users (activate/deactivate)."""
@@ -434,28 +456,34 @@ def send_otp(request):
             return redirect('forgot_password_page')
     return render(request, 'send_otp.html')
 
+from django.contrib.auth import get_user_model
+
 def forgot_password_page(request):
     if request.method == 'POST':
         email = request.POST.get('email')
-        if User.objects.filter(email=email).exists():
+
+        # Use the custom user model
+        if CustomUser.objects.filter(email=email).exists():
             # Generate OTP
             otp = random.randint(100000, 999999)
 
-            # Save OTP in session or database
+            # Save OTP and email in session
             request.session['otp'] = otp
             request.session['email'] = email
 
             # Send OTP email
-            send_mail(
-                'Your OTP for Password Reset',
-                f'Your OTP is {otp}.',
-                'noreply@deskdelight.com',
-                [email],
-                fail_silently=False,
-            )
-
-            messages.success(request, 'OTP sent to your email!')
-            return redirect('verify_otp')  # Redirect to OTP verification page
+            try:
+                send_mail(
+                    'Your OTP for Password Reset',
+                    f'Your OTP is {otp}.',
+                    'noreply@deskdelight.com',
+                    [email],
+                    fail_silently=False,
+                )
+                messages.success(request, 'OTP sent to your email!')
+                return redirect('verify_otp')  # Redirect to OTP verification page
+            except Exception as e:
+                messages.error(request, 'Failed to send OTP. Please try again.')
         else:
             messages.error(request, 'Email not found.')
     return render(request, 'forgot_password.html')
@@ -485,14 +513,13 @@ def reset_password(request):
 
         if new_password == confirm_password:
             try:
-                # Update user password
-                user = User.objects.get(email=email)
+                user = CustomUser.objects.get(email=email)
                 user.set_password(new_password)
                 user.save()
 
                 messages.success(request, 'Password successfully reset. You can now log in.')
                 return redirect('login_page')  # Redirect to login page
-            except User.DoesNotExist:
+            except CustomUser.DoesNotExist:
                 messages.error(request, 'User does not exist.')
         else:
             messages.error(request, 'Passwords do not match.')
