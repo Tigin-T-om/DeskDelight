@@ -36,6 +36,8 @@ urlpatterns = [
 
 
 
+    path('custom_admin/order_management/', views.admin_order_management, name='admin_order_management'),
+    path('custom_admin/update_order/<int:order_id>/', views.update_order_status, name='update_order_status'),
 
 
 

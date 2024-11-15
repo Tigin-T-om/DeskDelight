@@ -1,0 +1,21 @@
+{% extends 'admin_base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Update Order Status</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="status" class="form-label">Order Status</label>
+            <select id="status" name="status" class="form-select">
+                <option value="Pending" {% if order.status == "Pending" %}selected{% endif %}>Pending</option>
+                <option value="Shipped" {% if order.status == "Shipped" %}selected{% endif %}>Shipped</option>
+                <option value="Delivered" {% if order.status == "Delivered" %}selected{% endif %}>Delivered</option>
+                <option value="Cancelled" {% if order.status == "Cancelled" %}selected{% endif %}>Cancelled</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-success">Update</button>
+        <a href="{% url 'admin_order_management' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

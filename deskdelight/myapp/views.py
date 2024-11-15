@@ -547,3 +547,35 @@ def user_management(request):
         return redirect('user_management')
     
     return render(request, 'admin_user_management.html', {'users': users})
+from myapp.models import Order  
+from myapp.models import Order  # Make sure the Order model is defined in models.py
+
+def admin_order_management(request):
+    """Display all orders for the admin to manage."""
+    if not request.user.is_authenticated or not request.user.is_staff:
+        messages.error(request, "You are not authorized to view this page.")
+        return redirect('admin_login')
+
+    orders = Order.objects.all().order_by('-created_at')  # Adjust to match your Order model
+    return render(request, 'admin_order_management.html', {'orders': orders})
+@login_required
+def update_order_status(request, order_id):
+    """Update the status of an order."""
+    if not request.user.is_staff:
+        messages.error(request, "You are not authorized to update orders.")
+        return redirect('admin_login')
+
+    order = get_object_or_404(Order, id=order_id)
+
+    if request.method == 'POST':
+        status = request.POST.get('status')
+        if status:
+            order.status = status
+            order.save()
+            messages.success(request, f"Order status updated to {status}.")
+        else:
+            messages.error(request, "Invalid status update.")
+
+        return redirect('admin_order_management')
+
+    return render(request, 'admin_update_order.html', {'order': order})
