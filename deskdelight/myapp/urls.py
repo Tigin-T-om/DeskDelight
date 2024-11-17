@@ -25,20 +25,29 @@ urlpatterns = [
     path('verify_otp/', views.verify_otp, name='verify_otp'),
     path('reset_password/', views.reset_password, name='reset_password'),
 
-
     path('user_management/', views.user_management, name='user_management'),
-
 
     path('product_management/', views.product_management, name='product_management'),
     path('add_product/', views.add_product, name='add_product'),
     path('edit_product/<int:product_id>/', views.edit_product, name='edit_product'),
     path('delete_product/<int:product_id>/', views.delete_product, name='delete_product'),
 
-
-
+    path('checkout/', views.proceed_to_checkout, name='checkout'),
     path('custom_admin/order_management/', views.admin_order_management, name='admin_order_management'),
     path('custom_admin/update_order/<int:order_id>/', views.update_order_status, name='update_order_status'),
-
-
-
+    # path('checkout/', views.proceed_to_checkout, name='checkout'),
+    path('order_confirmation/<int:order_id>/', views.order_confirmation, name='order_confirmation'),
+    path('remove_from_cart/<int:item_id>/', views.remove_from_cart, name='remove_from_cart'),
+    path('checkout/', views.checkout, name='checkout'),
+    path('order-confirmation/<int:order_id>/', views.order_confirmation, name='order_confirmation'),
+    path('checkout/', views.checkout_page, name='checkout_page'),  # Use 'checkout_page' view
+    path('place_order/', views.place_order, name='place_order'),
+    path('track_order/', views.track_order_page, name='track_order_page'),
 ]
+
+
+    # path('checkout/', views.checkout, name='checkout'),
+    # path('order/confirmation/<int:order_id>/', views.order_confirmation, name='order_confirmation'),
+    # path('checkout/', views.checkout, name='checkout'),
+    # path('order-confirmation/<int:order_id>/', views.order_confirmation, name='order_confirmation'),
+    # path('order_confirmation/<int:order_id>/', views.order_confirmation, name='order_confirmation'),

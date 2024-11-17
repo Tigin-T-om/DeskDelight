@@ -64,3 +64,66 @@ h1 {
     color : white !important;
 }
 
+/* Basic table styling */
+.table {
+    border-collapse: collapse;
+    width: 100%;
+    background-color: #6c757d; /* Set table background to gray */
+    color: white; /* Set text color to white */
+}
+
+.table th, .table td {
+    text-align: center;
+    padding: 12px;
+    color: white; /* Ensures text color inside table cells is white */
+}
+
+/* Header and footer */
+.table-dark {
+    background-color: #495057; /* Dark gray background for header */
+    color: white;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f1f1f1; /* Light hover color for rows */
+}
+
+/* Styling product images */
+.product-img {
+    width: 80px; /* Fixed width for image */
+    height: 80px; /* Fixed height for image */
+    object-fit: cover; /* Ensures image scales proportionally */
+    border-radius: 8px; /* Optional: adds rounded corners */
+}
+
+/* Button styling */
+.btn {
+    font-size: 0.9rem;
+    padding: 6px 12px;
+    border-radius: 5px;
+}
+
+.btn-sm {
+    font-size: 0.8rem;
+}
+
+.text-end {
+    text-align: right;
+}
+
+/* Responsive design improvements */
+@media (max-width: 768px) {
+    .table th, .table td {
+        padding: 8px;
+    }
+
+    .product-img {
+        width: 60px; /* Adjust image size for smaller screens */
+        height: 60px;
+    }
+
+    .btn {
+        font-size: 0.8rem;
+        padding: 5px 10px;
+    }
+}

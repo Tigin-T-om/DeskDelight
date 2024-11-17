@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Order Confirmation{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h2>Order Confirmation</h2>
+        <p>Thank you for your purchase! Your order has been successfully placed.</p>
+
+        <h3>Order Details</h3>
+        <p><strong>Order ID:</strong> {{ order.id }}</p>
+        <p><strong>Status:</strong> {{ order.status }}</p>
+        <p><strong>Total Price:</strong> ${{ order.total_price }}</p>
+
+        <h4>Ordered Items:</h4>
+        <ul>    
+            {% for item in order.orderitem_set.all %}
+                <li>{{ item.product.name }} - {{ item.quantity }} x ${{ item.product.price }} = ${{ item.total_price }}</li>
+            {% endfor %}
+        </ul>
+
+        <a href="{% url 'index' %}" class="btn btn-primary">Back to Shop</a>
+    </div>
+{% endblock %}

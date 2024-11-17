@@ -346,6 +346,7 @@ def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     quantity = int(request.POST.get('quantity', 1))
 
+    # Ensure the requested quantity does not exceed stock
     if quantity > product.quantity_available:
         messages.error(request, f"Only {product.quantity_available} items available.")
         return redirect('product_detail', product_id=product.id)
@@ -358,6 +359,7 @@ def add_to_cart(request, product_id):
     else:
         cart_item.quantity += quantity
 
+    # Cap the cart quantity to available stock
     if cart_item.quantity > product.quantity_available:
         cart_item.quantity = product.quantity_available
         messages.warning(
@@ -366,6 +368,7 @@ def add_to_cart(request, product_id):
     cart_item.save()
     messages.success(request, f"Added {cart_item.quantity} x {product.name} to your cart.")
     return redirect('cart_page')
+
 
 @login_required
 def admin_set_quantity(request, product_id):
@@ -383,10 +386,11 @@ def admin_set_quantity(request, product_id):
 
 @login_required
 def cart_page(request):
-    """Display the user's cart."""
-    cart_items = Cart.objects.filter(user=request.user)
+    cart_items = Cart.objects.filter(user=request.user, status='active')
     total_price = sum(item.product.price * item.quantity for item in cart_items)
     return render(request, 'user_cart.html', {'cart_items': cart_items, 'total_price': total_price})
+
+
 
 def checkout_view(request):
     # Your checkout logic here
@@ -550,14 +554,15 @@ def user_management(request):
 from myapp.models import Order  
 from myapp.models import Order  # Make sure the Order model is defined in models.py
 
+@login_required
 def admin_order_management(request):
-    """Display all orders for the admin to manage."""
-    if not request.user.is_authenticated or not request.user.is_staff:
+    if not request.user.is_staff:
         messages.error(request, "You are not authorized to view this page.")
         return redirect('admin_login')
 
-    orders = Order.objects.all().order_by('-created_at')  # Adjust to match your Order model
+    orders = Order.objects.prefetch_related('orderitem_set', 'customer').order_by('-created_at')
     return render(request, 'admin_order_management.html', {'orders': orders})
+
 @login_required
 def update_order_status(request, order_id):
     """Update the status of an order."""
@@ -579,3 +584,195 @@ def update_order_status(request, order_id):
         return redirect('admin_order_management')
 
     return render(request, 'admin_update_order.html', {'order': order})
+
+from django import forms
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.db import transaction
+from django.contrib.auth.decorators import login_required
+from .models import Cart, Order, OrderItem
+
+# Form for capturing shipping address
+class ShippingAddressForm(forms.Form):
+    address = forms.CharField(label="Shipping Address", widget=forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}))
+    phone_number = forms.CharField(label="Phone Number", max_length=15, widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+@login_required
+def proceed_to_checkout(request):
+    """Handle the checkout process and place an order."""
+    cart_items = Cart.objects.filter(user=request.user)
+
+    if not cart_items:
+        messages.error(request, "Your cart is empty!")
+        return redirect('cart_page')
+
+    total_price = sum(item.product.price * item.quantity for item in cart_items)
+
+    with transaction.atomic():
+        order = Order.objects.create(
+            customer=request.user,
+            total_price=total_price,
+            status='Pending'
+        )
+
+        for item in cart_items:
+            # Reduce stock
+            item.product.quantity_available -= item.quantity
+            item.product.save()
+
+            OrderItem.objects.create(
+                order=order,
+                product=item.product,
+                quantity=item.quantity,
+                total_price=item.product.price * item.quantity
+            )
+
+        cart_items.delete()
+
+    messages.success(request, "Your order has been placed successfully!")
+    return redirect('order_confirmation', order_id=order.id)
+
+@login_required
+def order_confirmation(request, order_id):
+    """Display order details after placing an order."""
+    order = get_object_or_404(Order, id=order_id, customer=request.user)
+    order_items = OrderItem.objects.filter(order=order)
+
+    return render(request, 'order_confirmation.html', {
+        'order': order,
+        'order_items': order_items,
+    })
+
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .models import Cart
+
+@login_required
+def remove_from_cart(request, item_id):
+    try:
+        # Find the cart item by its ID (using the Cart model)
+        item = Cart.objects.get(id=item_id, user=request.user)
+        
+        # If quantity is greater than 1, reduce the quantity by 1
+        if item.quantity > 1:
+            item.quantity -= 1
+            item.save()
+            messages.success(request, f"One {item.product.name} has been removed from your cart.")
+        else:
+            item.delete()  # If quantity is 1, remove the entire item from the cart
+            messages.success(request, f"{item.product.name} has been removed from your cart.")
+        
+    except Cart.DoesNotExist:
+        return HttpResponse('Item not found in the cart', status=404)
+
+    return redirect('cart_page')  # Redirect back to the cart page
+
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .models import Order
+
+@login_required
+def order_confirmation(request, order_id):
+    order = get_object_or_404(Order, id=order_id, customer=request.user)
+    return render(request, 'order_confirmation.html', {'order': order})
+
+        
+@login_required
+def track_order_page(request):
+    user = request.user
+    orders = Order.objects.filter(customer=user)
+    return render(request, 'track_order.html', {'orders': orders})
+
+
+@login_required
+def checkout_page(request):
+    user = request.user
+    cart_items = Cart.objects.filter(user=user)
+    total_price = sum(item.product.price * item.quantity for item in cart_items)
+
+    if not cart_items.exists():
+        return redirect('cart_page')  # Redirect to cart if empty
+
+    return render(request, 'checkout.html', {'cart_items': cart_items, 'total_price': total_price})
+
+@login_required
+def place_order(request):
+    if request.method == "POST":
+        user = request.user
+        shipping_address = request.POST.get('shipping_address')
+        phone_number = request.POST.get('phone_number')
+        payment_method = request.POST.get('payment_method')
+
+        cart_items = Cart.objects.filter(user=user)
+        total_price = sum(item.product.price * item.quantity for item in cart_items)
+
+        # Create Order
+        order = Order.objects.create(
+            customer=user,
+            total_price=total_price,
+            status="Pending",
+            shipping_address=shipping_address,
+            phone_number=phone_number,
+        )
+
+        # Add Order Items
+        for item in cart_items:
+            OrderItem.objects.create(
+                order=order,
+                product=item.product,
+                quantity=item.quantity,
+                total_price=item.product.price * item.quantity,
+            )
+
+        # Clear the Cart
+        cart_items.delete()
+
+        # Redirect to Track Order Page
+        return redirect('track_order_page')
+
+    return redirect('checkout_page')
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .models import Cart, Order, OrderItem
+from django.contrib import messages
+
+@login_required
+def checkout(request):
+    user = request.user
+    cart_items = Cart.objects.filter(user=user)
+    total_price = sum(item.product.price * item.quantity for item in cart_items)
+
+    if request.method == 'POST':
+        # Get the submitted shipping address and phone number
+        shipping_address = request.POST.get('shipping_address')
+        phone_number = request.POST.get('phone_number')
+
+        if not shipping_address or not phone_number:
+            messages.error(request, "Please fill in all required fields.")
+            return redirect('checkout_page')
+
+        # Create the order
+        order = Order.objects.create(
+            customer=user,
+            total_price=total_price,
+            shipping_address=shipping_address,
+            phone_number=phone_number,
+        )
+
+        # Add items to the order
+        for item in cart_items:
+            OrderItem.objects.create(
+                order=order,
+                product=item.product,
+                quantity=item.quantity,
+                total_price=item.product.price * item.quantity,
+            )
+        
+        # Clear the user's cart
+        cart_items.delete()
+
+        # Redirect to the track order page
+        return redirect('track_order_page')
+    
+    return redirect('checkout_page')  # If not POST, redirect to checkout page
+

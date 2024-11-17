@@ -1,54 +1,45 @@
-{% extends 'base.html' %}  <!-- This should be the first line in the template -->
-
-{% load custom_filters %}  <!-- Load custom filters here, after extends -->
-
-{% block title %}Your Cart - Deskdelight{% endblock %}
+{% extends 'base.html' %}
+{% load custom_filters %}
 
 {% block content %}
-    <div class="container mt-5">
-        <h2>Your Cart</h2>
-        
-        {% if cart_items %}
-            <table class="table table-bordered">
-                <thead>
+<div class="container mt-5">
+    <h2>Your Cart</h2>
+
+    {% if cart_items %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
                     <tr>
-                        <th>Product</th>
-                        <th>Price</th>
-                        <th>Quantity</th>
-                        <th>Total</th>
-                        <th>Action</th>  <!-- Add a column for the action -->
+                        <td>{{ item.product.name }}</td>
+                        <td>${{ item.product.price }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>${{ item.product.price|multiply:item.quantity }}</td>
+                        <td>
+                            <form method="POST" action="{% url 'remove_from_cart' item.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger">Remove</button>
+                            </form>
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    {% for item in cart_items %}
-                        <tr>
-                            <td>{{ item.product.name }}</td>
-                            <td>${{ item.product.price }}</td>
-                            <td>{{ item.quantity }}</td>
-                            <td>${{ item.product.price|multiply:item.quantity }}</td>  <!-- Multiply price by quantity -->
+                {% endfor %}
+            </tbody>
+        </table>
 
-                            <!-- Add a form to remove an item from the cart -->
-                            <td>
-                                <form method="POST" action="{% url 'remove_from_cart' item.id %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-danger">Remove</button>
-                                </form>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <h3>Total Price: ${{ total_price }}</h3>
 
-            <h3>Total Price: ${{ total_price }}</h3>
-
-            <!-- Optional: Add a checkout button -->
-            <form method="POST" action="{% url 'checkout' %}">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-success">Proceed to Checkout</button>
-            </form>
-
-        {% else %}
-            <p>Your cart is empty.</p>
-        {% endif %}
-    </div>
+        <!-- Redirect to the checkout page -->
+        <a href="{% url 'checkout_page' %}" class="btn btn-success">Proceed to Checkout</a>
+    {% else %}
+        <p>Your cart is empty.</p>
+    {% endif %}
+</div>
 {% endblock %}

@@ -1,119 +1,205 @@
+{% extends 'base.html' %}
+
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product List</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'product.css' %}">
-    <style>
-        .card-img-top {
-            height: 200px;
-            object-fit: cover;
-            transition: transform 0.3s ease;
-        }
-        .card-img-top:hover {
-            transform: scale(1.05);
-        }
-        .card-body {
-            text-align: center;
-        }
-        .btn-primary {
-            width: 100%;
-            margin-top: 10px;
-        }
-        .card {
-            border: none;
-            border-radius: 10px;
-        }
-        .productTitle {
-            font-size: 1.25rem;
-            font-weight: bold;
-        }
-        .text-success {
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-        footer {
-            background-color: #333;
-            color: #fff;
-            padding: 20px 0;
-            margin-top: 50px;
-        }
-    </style>
-</head>
-<body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'index' %}">Deskdelight</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link active" href="{% url 'index' %}">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'product_page' %}">Products</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'cart_page' %}">Cart</a></li>
-                    {% if user.is_authenticated %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'user_profile' %}">
-                                <i class="fa-solid fa-user"></i> Profile
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'logout_view' %}">Logout</a>
-                        </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'login_page' %}">Login</a>
-                        </li>
-                    {% endif %}
-                </ul>
+
+{% block title %}Product List{% endblock %}
+
+{% block content %}
+    <!-- Product Listings with Category Dropdown -->
+    <div class="container mt-5">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h1 class="text-center">Product List - {{ category|capfirst }}</h1>
+            </div>
+            <div class="col-md-6 text-end">
+                <div class="dropdown category-dropdown">
+                    <button class="btn btn-outline-dark dropdown-toggle" type="button" id="categoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        Select Category
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="categoryDropdown">
+                        <li><a class="dropdown-item" href="?category=chair">Chair</a></li>
+                        <li><a class="dropdown-item" href="?category=table">Table</a></li>
+                        <li><a class="dropdown-item" href="?category=all">All Categories</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
-    </nav>
 
-    <!-- Category Selection -->
-    <div class="container mt-3">
-        <h4 class="text-center">Select Category</h4>
-        <div class="d-flex justify-content-center">
-            <a href="?category=chair" class="btn btn-outline-dark mx-2">Chair</a>
-            <a href="?category=table" class="btn btn-outline-dark mx-2">Table</a>
-        </div>
-    </div>
-
-    <!-- Product Listings -->
-    <div class="container mt-5">
-        <h1 class="text-center mb-4">Product List - {{ category|capfirst }}</h1>
-        <div class="row">
+        <!-- Product Listings -->
+        <div class="row mt-4">
             {% for product in products %}
                 <div class="col-md-4 d-flex justify-content-center mb-4">
-                    <div class="card shadow-sm" style="width: 18rem;">
-                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                    <div class="card shadow-sm" style="width: 18rem; height: 25rem;">
+                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="width: 100%; background-position: cover;>
                         <div class="card-body">
-                            <h5 class="card-title productTitle">{{ product.name }}</h5>
-                            <p class="text-success">${{ product.price }}</p>
-                            <a href="{% url 'product_detail' product.id %}" class="btn btn-primary">View Details</a>
-                            <a href="#" class="btn btn-primary">Add to Cart</a>
+                            <h5 class="card-title productTitle" style="text-align: center;">{{ product.name }}</h5>
+                            <p class="text-success" style="text-align: center;">${{ product.price }}</p>
+                            <div style="display: flex; justify-content: center; align-items: center; flex-direction: column; row-gap: 1rem;">
+                            <a href="{% url 'product_detail' product.id %}" class="btn btn-primary" style="margin-bottom: 2rem; width : 90%; margin: 0 auto;" >View Details</a>
+                            <a href="#" class="btn btn-primary" style="margin-bottom: 2rem; width : 90%; margin: 0 auto;">Add to Cart</a>
+                            </div>
                         </div>
                     </div>
                 </div>
+            {% empty %}
+                <p class="text-center w-100">No products available in this category.</p>
             {% endfor %}
         </div>
     </div>
+{% endblock %}
 
-    <!-- Footer -->
-    <footer>
-        <div class="container text-center">
-            <p class="mb-0">&copy; 2024 Deskdelight. All rights reserved.</p>
-        </div>
-    </footer>
+{% block head %}
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #fafbfd;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
 
-    <!-- Bootstrap JavaScript -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
-</body>
-</html>
+        /* Navbar Styles */
+        .navbar {
+            background-color: #724949;
+            border-bottom: 2px solid #cea7a7;
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            color: white !important;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: white !important;
+        }
+
+        .nav-link {
+            color: white !important;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: #18ff4a !important;
+        }
+
+        .navbar-toggler {
+            border: none;
+        }
+
+        /* Product Section */
+        h1.text-center {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .container {
+            margin-top: 3rem;
+        }
+
+        /* Card Styles */
+        .card {
+            border: none;
+            border-radius: 15px;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .img-wrapper {
+            text-align: center;
+        }
+
+        .card-img-top {
+            border-radius: 15px 15px 0 0;
+            width: auto;
+            max-width: 100%;
+            height: 200px;
+            object-fit: fill;
+            margin: 0 auto;
+            display: block;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .card-text {
+            color: #6c757d;
+            margin-bottom: 1rem;
+        }
+
+        .text-success {
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+
+        /* Button Styles */
+        .btn-primary {
+            background-color: #4c8cfa;
+            border: none;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            padding: 0.5rem 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #6ea8ff;
+            color: white;
+        }
+
+        footer {
+        background-color: #212529;
+        border-top: 2px solid #e0e0e0;
+        padding: 1rem 0; /* Reduced the padding to decrease the height */
+        text-align: center;
+        color: white;
+        }
+
+    footer p {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            animation: fadeInUp 0.5s ease-in-out;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            h1.text-center {
+                font-size: 2rem;
+            }
+
+            .card-img-top {
+                height: 150px;
+            }
+        }
+    </style>
+{% endblock %}

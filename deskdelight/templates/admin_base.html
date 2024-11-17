@@ -21,12 +21,14 @@
             </button>
             <div class="collapse navbar-collapse" id="adminNavbar">
                 <ul class="navbar-nav ms-auto">
+                    <!-- <li class="nav-item">
+                        <a class="nav-link" href="#">Dashboard</a>
+                    </li> -->
                     <li class="nav-item">
-                        <a class="nav-link" href="">Dashboard</a>
+                        <a class="nav-link" href="{% url 'product_management' %}">Product Management</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'product_management' %}">Add Product</a>
-                    </li>
+                        <a class="nav-link" href="{% url 'admin_order_management' %}">Order Management</a>                </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'user_management' %}">User Management</a>
                     </li>
@@ -37,6 +39,7 @@
             </div>
         </div>
     </nav>
+    
 
     <!-- Content -->
     <div class="container mt-4">

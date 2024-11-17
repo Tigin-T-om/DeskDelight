@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Track Your Order{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Track Your Order</h2>
+    {% if orders %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Status</th>
+                    <th>Estimated Delivery</th>
+                    <th>Total Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                    <tr>
+                        <td>{{ order.id }}</td>
+                        <td>{{ order.status }}</td>
+                        <td>{{ order.created_at|date:"M d, Y" }}</td>
+                        <td>${{ order.total_price }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>You have no orders to track.</p>
+    {% endif %}
+</div>
+{% endblock %}

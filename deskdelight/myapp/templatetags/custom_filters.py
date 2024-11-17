@@ -2,9 +2,9 @@ from django import template
 
 register = template.Library()
 
-@register.filter(name='multiply')
+@register.filter
 def multiply(value, arg):
     try:
-        return float(value) * float(arg)
+        return value * arg
     except (ValueError, TypeError):
         return 0
