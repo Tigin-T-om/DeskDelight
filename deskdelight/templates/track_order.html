@@ -13,6 +13,7 @@
                     <th>Status</th>
                     <th>Estimated Delivery</th>
                     <th>Total Price</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -22,9 +23,18 @@
                         <td>{{ order.status }}</td>
                         <td>{{ order.created_at|date:"M d, Y" }}</td>
                         <td>${{ order.total_price }}</td>
+                        <td>
+                            {% if order.status == "Pending" %}
+                                <form method="post" action="{% url 'cancel_order' order.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
+                                </form>
+                            {% endif %}
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
+            
         </table>
     {% else %}
         <p>You have no orders to track.</p>

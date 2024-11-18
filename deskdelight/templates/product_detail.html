@@ -16,9 +16,10 @@
             <h4 style="color: #28a745; font-weight: bold;">Price: ${{ product.price }}</h4>
 
             {% if product.quantity_available > 0 %}
-                <form method="POST" 
+                <form id="addToCartForm" method="POST" 
                       action="{% if user.is_authenticated %}{% url 'add_to_cart' product.id %}{% else %}{% url 'login_page' %}{% endif %}" 
-                      style="margin-top: 20px;">
+                      style="margin-top: 20px;" 
+                      onsubmit="showAddToCartPopup(event)">
                     {% csrf_token %}
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <label for="quantity" style="margin-right: 10px; font-weight: bold;">Quantity:</label>
@@ -38,7 +39,7 @@
 
     <!-- Related Products Section -->
     <div class="mt-5">
-        <h3 style=" padding-bottom: 10px; font-weight: bold;">You may also like</h3>
+        <h3 style="padding-bottom: 10px; font-weight: bold;">You may also like</h3>
         <div class="row mt-3">
             {% for related_product in related_products %}
                 <div class="col-md-3 mb-4">
@@ -57,4 +58,40 @@
         </div>
     </div>
 </div>
+
+<!-- Pop-up Modal -->
+<div id="cartPopup" class="modal" tabindex="-1" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background-color: #2b2b2b; color: #fff; border: 1px solid #444;">
+            <div class="modal-header">
+                <h5 class="modal-title">Added to Cart</h5>
+                <button type="button" class="btn-close btn-close-white" onclick="closeCartPopup()" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>The product has been added to your cart successfully!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="closeCartPopup()" style="background-color: #1e90ff; border: none;">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showAddToCartPopup(event) {
+        event.preventDefault(); // Prevent the form from submitting immediately
+        const popupModal = document.getElementById('cartPopup');
+
+        // Show the modal
+        popupModal.style.display = 'block';
+    }
+
+    function closeCartPopup() {
+        const popupModal = document.getElementById('cartPopup');
+        popupModal.style.display = 'none';
+
+        // Redirect to the cart page
+        window.location.href = "{% url 'cart_page' %}";
+    }
+</script>
 {% endblock %}

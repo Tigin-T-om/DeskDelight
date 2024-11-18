@@ -147,7 +147,7 @@ def login_view(request):
                 return redirect('adminPage')  # Redirect to admin dashboard
             else:
                 login(request, user)
-                messages.success(request, "Logged in successfully.")
+                
                 return redirect('isLoggedIn')  # Redirect to user dashboard or home
         else:
             messages.error(request, "Invalid email or password.")
@@ -182,7 +182,7 @@ def user_profile(request):
         user.address = request.POST.get('address')
         user.save()
 
-        messages.success(request, "Your profile has been updated successfully.")
+        # messages.success(request, "Your profile has been updated successfully.")
         return redirect('user_profile')
 
     return render(request, 'user_profile.html', {'user': request.user})
@@ -776,3 +776,19 @@ def checkout(request):
     
     return redirect('checkout_page')  # If not POST, redirect to checkout page
 
+@login_required
+def cancel_order(request, order_id):
+    order = get_object_or_404(Order, id=order_id, customer=request.user)
+    if order.status != 'Pending':
+        messages.error(request, "You can only cancel orders that are in 'Pending' status.")
+        return redirect('track_order_page')
+
+    # Restore stock
+    for item in order.orderitem_set.all():
+        item.product.quantity_available += item.quantity
+        item.product.save()
+
+    order.status = 'Cancelled'
+    order.save()
+    messages.success(request, "Your order has been cancelled.")
+    return redirect('track_order_page')

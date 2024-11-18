@@ -1,129 +1,70 @@
-/* General Styles */
-body {
-    font-family: 'Poppins', sans-serif;
-    background-color: #f8f9fa;
-    margin: 0;
-    padding: 0;
-}
-
 /* Navbar Styles */
-.admin-navbar {
-    background-color: #343a40;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+.navbar {
+    background-color: #724949;
+    border-bottom: 2px solid #cea7a7;
+    padding: 1rem 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
-.admin-navbar .logo {
-    color: #ffffff;
+.navbar-brand {
+    font-weight: 700;
     font-size: 1.5rem;
-    font-weight: bold;
-    text-transform: uppercase;
+    color: white !important;
 }
 
-.admin-navbar .nav-link {
-    color: #ffffff;
+.nav-link {
+    color: white !important;
     font-size: 1.1rem;
-    margin-right: 15px;
     transition: color 0.3s ease;
+    padding: 0.5rem 1rem;
 }
 
-.admin-navbar .nav-link:hover {
-    color: green;
+.nav-link:hover {
+    color: rgb(50, 252, 50) !important;
 }
 
-.admin-navbar .logout {
-    font-weight: bold;
-    color: #dc3545;
+/* Search Bar */
+.form-control {
+    border-radius: 30px;
 }
 
-.admin-navbar .logout:hover {
-    color: #bd2130;
+.btn-outline-success {
+    border-radius: 30px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1); /* Adds subtle shadow */
 }
 
-/* Body Styles */
-h1 {
-    color: #343a40;
-    font-size: 2.5rem;
-    font-weight: bold;
+/* Footer */
+footer {
+    background-color: #ffffff;
+    border-top: 2px solid #e0e0e0;
+    padding: 2rem 0;
+    text-align: center;
+    position: fixed; /* Fixed footer at bottom */
+    width: 100%;
+    bottom: 0;
+}
+
+footer p {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 0;
 }
 
 /* Responsive Adjustments */
 @media (max-width: 768px) {
-    .admin-navbar .nav-link {
+    .jumbotron h1 {
+        font-size: 2.2rem;
+    }
+
+    .jumbotron p {
         font-size: 1rem;
-        margin-right: 10px;
-    }
-}
-
-.container-fluid{
-    display : flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.navbar-brand, .nav-link{
-    color : white !important;
-}
-
-/* Basic table styling */
-.table {
-    border-collapse: collapse;
-    width: 100%;
-    background-color: #6c757d; /* Set table background to gray */
-    color: white; /* Set text color to white */
-}
-
-.table th, .table td {
-    text-align: center;
-    padding: 12px;
-    color: white; /* Ensures text color inside table cells is white */
-}
-
-/* Header and footer */
-.table-dark {
-    background-color: #495057; /* Dark gray background for header */
-    color: white;
-}
-
-.table-hover tbody tr:hover {
-    background-color: #f1f1f1; /* Light hover color for rows */
-}
-
-/* Styling product images */
-.product-img {
-    width: 80px; /* Fixed width for image */
-    height: 80px; /* Fixed height for image */
-    object-fit: cover; /* Ensures image scales proportionally */
-    border-radius: 8px; /* Optional: adds rounded corners */
-}
-
-/* Button styling */
-.btn {
-    font-size: 0.9rem;
-    padding: 6px 12px;
-    border-radius: 5px;
-}
-
-.btn-sm {
-    font-size: 0.8rem;
-}
-
-.text-end {
-    text-align: right;
-}
-
-/* Responsive design improvements */
-@media (max-width: 768px) {
-    .table th, .table td {
-        padding: 8px;
     }
 
-    .product-img {
-        width: 60px; /* Adjust image size for smaller screens */
-        height: 60px;
+    .card-img-top {
+        height: 150px;
     }
 
-    .btn {
-        font-size: 0.8rem;
-        padding: 5px 10px;
+    .navbar {
+        padding: 1rem;
     }
 }

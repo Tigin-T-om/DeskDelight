@@ -1,45 +1,109 @@
 {% extends 'admin_base.html' %}
+
 {% block content %}
-<table class="table table-bordered table-striped mt-3">
-    <thead>
-        <tr>
-            <th>Order ID</th>
-            <th>Customer</th>
-            <th>Products</th>
-            <th>Quantities</th>
-            <th>Total Price</th>
-            <th>Status</th>
-            <th>Estimated Delivery Date</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for order in orders %}
-        <tr>
-            <td>{{ order.id }}</td>
-            <td>{{ order.customer.username }}</td>
-            <td>
-                {% for item in order.orderitem_set.all %}
-                    {{ item.product.name }}<br>
-                {% endfor %}
-            </td>
-            <td>
-                {% for item in order.orderitem_set.all %}
-                    {{ item.quantity }}<br>
-                {% endfor %}
-            </td>
-            <td>${{ order.total_price }}</td>
-            <td>{{ order.status }}</td>
-            <td>{{ order.estimated_delivery_date|date:"F d, Y" }}</td>
-            <td>
-                <a href="{% url 'update_order_status' order.id %}" class="btn btn-primary btn-sm">Update</a>
-            </td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="8" class="text-center">No orders found.</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="container mt-5">
+    <h1 class="text-center mb-4" style="color: #fff;">Order Management</h1>
+
+    <div class="card shadow-sm" style="background-color: #2f2f2f; border-radius: 10px;">
+        <div class="card-body">
+            <h4 class="card-title text-center text-white mb-4">Orders</h4>
+
+            <!-- Orders Table -->
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th class="text-white">Order ID</th>
+                        <th class="text-white">Customer</th>
+                        <th class="text-white">Products</th>
+                        <th class="text-white">Quantities</th>
+                        <th class="text-white">Total Price</th>
+                        <th class="text-white">Status</th>
+                        <th class="text-white">Estimated Delivery Date</th>
+                        <th class="text-white">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td class="text-white">{{ order.id }}</td>
+                        <td class="text-white">{{ order.customer.username }}</td>
+                        <td class="text-white">
+                            {% for item in order.orderitem_set.all %}
+                                {{ item.product.name }}<br>
+                            {% endfor %}
+                        </td>
+                        <td class="text-white">
+                            {% for item in order.orderitem_set.all %}
+                                {{ item.quantity }}<br>
+                            {% endfor %}
+                        </td>
+                        <td class="text-white">${{ order.total_price }}</td>
+                        <td class="text-white">{{ order.status }}</td>
+                        <td class="text-white">{{ order.estimated_delivery_date|date:"F d, Y" }}</td>
+                        <td>
+                            <a href="{% url 'update_order_status' order.id %}" class="btn btn-primary btn-sm">Update</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center text-white">No orders found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Inline CSS for styling -->
+<style>
+    .card {
+        background-color: #2f2f2f; /* Dark grey background for the card */
+        color: white; /* Ensure all text inside the card is white */
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin-top: 20px;
+    }
+
+    .card-title {
+        color: white; /* White text for the card title */
+        font-size: 1.8rem;
+        font-weight: bold;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        padding: 10px;
+        text-align: center;
+    }
+
+    th {
+        background-color: #444; /* Dark grey background for table header */
+        color: white;
+    }
+
+    tr:nth-child(odd) {
+        background-color: #333; /* Slightly lighter grey for odd rows */
+    }
+
+    tr:nth-child(even) {
+        background-color: #2f2f2f; /* Darker grey for even rows */
+    }
+
+    .btn-primary {
+        background-color: #309d79;
+        border-color: #5c6bc0;
+    }
+
+    .btn-primary:hover {
+        background-color: #3f51b5;
+        border-color: #3f51b5;
+    }
+</style>
+
 {% endblock %}

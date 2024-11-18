@@ -2,62 +2,133 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h1 class="text-center mb-4">Edit Product</h1>
-    
+    <h1 class="text-center mb-4" style="color: #060505;">Edit Product</h1>
+
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <form method="POST" enctype="multipart/form-data">
-                {% csrf_token %}
-                
-                <!-- Product Name -->
-                <div class="mb-3">
-                    <label for="name" class="form-label">Product Name</label>
-                    <input type="text" class="form-control" id="name" name="name" value="{{ product.name }}" required>
-                </div>
+            <div class="card shadow-sm" style="background-color: #2f2f2f; padding: 20px; border-radius: 10px;">
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <!-- Product Name -->
+                        <div class="mb-3">
+                            <label for="name" class="form-label text-white">Product Name</label>
+                            <input type="text" class="form-control" id="name" name="name" value="{{ product.name }}" required>
+                        </div>
 
-                <!-- Description -->
-                <div class="mb-3">
-                    <label for="description" class="form-label">Description</label>
-                    <textarea class="form-control" id="description" name="description" rows="3" required>{{ product.description }}</textarea>
-                </div>
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <label for="description" class="form-label text-white">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3" required>{{ product.description }}</textarea>
+                        </div>
 
-                <!-- Price -->
-                <div class="mb-3">
-                    <label for="price" class="form-label">Price</label>
-                    <input type="number" class="form-control" id="price" name="price" value="{{ product.price }}" step="0.01" required>
-                </div>
+                        <!-- Price -->
+                        <div class="mb-3">
+                            <label for="price" class="form-label text-white">Price</label>
+                            <input type="number" class="form-control" id="price" name="price" value="{{ product.price }}" step="0.01" required>
+                        </div>
 
-                <!-- Category -->
-                <div class="mb-3">
-                    <label for="category" class="form-label">Category</label>
-                    <input type="text" class="form-control" id="category" name="category" value="{{ product.category }}" required>
-                </div>
+                        <!-- Category -->
+                        <div class="mb-3">
+                            <label for="category" class="form-label text-white">Category</label>
+                            <input type="text" class="form-control" id="category" name="category" value="{{ product.category }}" required>
+                        </div>
 
-                <!-- Quantity -->
-                <div class="mb-3">
-                    <label for="quantity_available" class="form-label">Quantity Available</label>
-                    <input type="number" class="form-control" id="quantity_available" name="quantity_available" value="{{ product.quantity_available }}" required>
-                </div>
+                        <!-- Quantity -->
+                        <div class="mb-3">
+                            <label for="quantity_available" class="form-label text-white">Quantity Available</label>
+                            <input type="number" class="form-control" id="quantity_available" name="quantity_available" value="{{ product.quantity_available }}" required>
+                        </div>
 
-                <!-- Image -->
-                <div class="mb-3">
-                    <label for="image" class="form-label">Product Image</label>
-                    <input type="file" class="form-control" id="image" name="image">
-                    {% if product.image %}
-                    <div class="mt-2">
-                        <p>Current Image:</p>
-                        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-thumbnail" style="max-width: 200px;">
-                    </div>
-                    {% endif %}
-                </div>
+                        <!-- Image -->
+                        <div class="mb-3">
+                            <label for="image" class="form-label text-white">Product Image</label>
+                            <input type="file" class="form-control" id="image" name="image">
+                            {% if product.image %}
+                            <div class="mt-2">
+                                <p class="text-white">Current Image:</p>
+                                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-thumbnail" style="max-width: 200px;">
+                            </div>
+                            {% endif %}
+                        </div>
 
-                <!-- Submit Button -->
-                <div class="text-center">
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                    <a href="{% url 'product_management' %}" class="btn btn-secondary">Cancel</a>
+                        <!-- Submit Button -->
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <a href="{% url 'product_management' %}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
+
+<!-- Inline CSS for styling -->
+<style>
+    /* Card Styling */
+    .card {
+        background-color: #2f2f2f; /* Dark grey background */
+        padding: 20px;  /* Card padding */
+        border-radius: 10px;  /* Rounded corners */
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);  /* Soft shadow */
+        margin-bottom: 20px;  /* Ensure space below card */
+    }
+
+    .card-title {
+        color: #fff; /* White color for title */
+        font-size: 1.8rem;
+        font-weight: bold;
+    }
+
+    .form-control, .form-select {
+        border-radius: 8px;
+        background-color: #3a3a3a;  /* Slightly lighter grey */
+        color: #fff;  /* White text */
+        border: 1px solid #666;  /* Dark border */
+    }
+
+    .form-control:focus, .form-select:focus {
+        background-color: #444;  /* Slightly darker grey on focus */
+        border-color: #fff;  /* White border on focus */
+        box-shadow: none;  /* Remove focus box-shadow */
+    }
+
+    .btn-primary {
+        background-color: #24a754; /* Blue color */
+        border-color: #5c6bc0;
+    }
+
+    .btn-primary:hover {
+        background-color: #3f51b5; /* Darker blue on hover */
+        border-color: #3f51b5;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d; /* Gray color for cancel button */
+        border-color: #6c757d;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268; /* Darker gray on hover */
+        border-color: #545b62;
+    }
+
+    /* Ensure Footer does not overlap with content */
+    body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh; /* Allow the body to take up the full viewport height */
+    }
+
+    .container {
+        flex: 1; /* Allow the content to expand and fill available space */
+    }
+
+    footer {
+        margin-top: auto; /* Push footer to the bottom of the page */
+    }
+</style>
+
 {% endblock %}

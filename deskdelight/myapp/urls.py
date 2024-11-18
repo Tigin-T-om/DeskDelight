@@ -43,6 +43,7 @@ urlpatterns = [
     path('checkout/', views.checkout_page, name='checkout_page'),  # Use 'checkout_page' view
     path('place_order/', views.place_order, name='place_order'),
     path('track_order/', views.track_order_page, name='track_order_page'),
+    path('order/cancel/<int:order_id>/', views.cancel_order, name='cancel_order'),
 ]
 
 

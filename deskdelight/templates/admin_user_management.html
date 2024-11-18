@@ -9,46 +9,96 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Management</title>
     <link rel="stylesheet" href="{% static 'admin_user_management.css' %}">
+    <style>
+        /* Card style */
+        .card {
+            background-color: #2f2f2f; /* Dark grey background for the card */
+            color: white; /* White text */
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        /* Table styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #444; /* Dark grey background for table header */
+            color: white;
+        }
+
+        tr:nth-child(odd) {
+            background-color: #333; /* Slightly lighter grey for odd rows */
+        }
+
+        tr:nth-child(even) {
+            background-color: #2f2f2f; /* Darker grey for even rows */
+        }
+
+        /* Button styles */
+        button {
+            color: white;
+            background-color: red;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: darkred;
+        }
+    </style>
 </head>
 <body style="text-align: center; font-family: Arial, sans-serif;">
 
     <h1>User Management</h1>
-    <table border="1" style="margin: auto; width: 80%; border-collapse: collapse;">
-        <thead>
-            <tr style="background-color: #f4f4f4;">
-                <th>ID</th>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Phone Number</th>
-                <th>Address</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for user in users %}
-            <tr>
-                <td>{{ user.id }}</td>
-                <td>{{ user.username }}</td>
-                <td>{{ user.email }}</td>
-                <td>{{ user.phone_number }}</td>
-                <td>{{ user.address }}</td>
-                <td>
-                    <form method="POST" action="{% url 'user_management' %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="user_id" value="{{ user.id }}">
-                        <button type="submit" style="color: white; background-color: red; border: none; padding: 5px 10px;">Delete</button>
-                    </form>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="6">No users found.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="card">
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Phone Number</th>
+                    <th>Address</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.phone_number }}</td>
+                    <td>{{ user.address }}</td>
+                    <td>
+                        <form method="POST" action="{% url 'user_management' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="user_id" value="{{ user.id }}">
+                            <button type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6">No users found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-    <a href="{% url 'adminPage' %}" style="margin-top: 20px; display: inline-block;">Back to Admin Dashboard</a>
 </body>
 </html>
 {% endblock %}
