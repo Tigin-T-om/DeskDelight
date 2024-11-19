@@ -387,6 +387,7 @@ def admin_set_quantity(request, product_id):
 @login_required
 def cart_page(request):
     cart_items = Cart.objects.filter(user=request.user, status='active')
+    print(cart_items)  # Debugging step to check the items in the cart
     total_price = sum(item.product.price * item.quantity for item in cart_items)
     return render(request, 'user_cart.html', {'cart_items': cart_items, 'total_price': total_price})
 
