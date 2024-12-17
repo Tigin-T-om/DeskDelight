@@ -21,12 +21,13 @@
         <div class="container-fluid">
             <a class="navbar-brand" href="{% url 'index' %}">Deskdelight</a>
             <!-- Search Bar -->
-            <form class="d-flex mx-auto" action="search_results.html" method="get" style="max-width: 400px; position: relative;">
+            <form class="d-flex mx-auto" action="{% url 'search_results' %}" method="get" style="max-width: 400px; position: relative;">
                 <input class="form-control me-2" type="search" placeholder="Search products..." aria-label="Search" name="query" style="padding-right: 30px;">
                 <button class="btn btn-outline-success" type="submit" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); border: none; background: none;">
                     <i class="fa fa-search searchBtn"></i>
                 </button>
             </form>
+            
             <!-- Navbar Links -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>

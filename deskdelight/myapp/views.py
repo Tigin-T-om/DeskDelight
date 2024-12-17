@@ -47,15 +47,45 @@ def contact_page(request):
     """Render the contact page."""
     return render(request, 'contact.html')
 
+# def product_page(request):
+#     """Display products filtered by category."""
+#     category = request.GET.get('category', 'chair')
+#     products = Product.objects.filter(category=category)
+#     return render(request, 'product.html', {'products': products, 'category': category})
+
 def product_page(request):
     """Display products filtered by category."""
-    category = request.GET.get('category', 'chair')
-    products = Product.objects.filter(category=category)
+    category = request.GET.get('category', 'all')
+    if category == 'all':
+        products = Product.objects.all()  # Fetch all products
+    else:
+        products = Product.objects.filter(category=category)  # Fetch products by category
     return render(request, 'product.html', {'products': products, 'category': category})
+
 
 def product_detail(request, product_id):
     product = get_object_or_404(Product, id=product_id)  # Fetch product by ID
     return render(request, 'product_detail.html', {'product': product})
+
+from django.shortcuts import render
+from .models import Product
+
+def product_list(request):
+    category = request.GET.get('category', 'all')  # Get category from query params
+    
+    if category == 'all':
+        products = Product.objects.all()  # Fetch all products if 'all' is selected
+        category_display = 'All'  # Custom label for "All Categories"
+    else:
+        products = Product.objects.filter(category=category)  # Filter by specific category
+        category_display = category.capitalize()  # Capitalize category for display
+
+    context = {
+        'products': products,
+        'category': category_display,  # Pass display-friendly category to template
+    }
+    return render(request, 'product.html', context)
+
 
 # -----------------------------
 # User Authentication Views
@@ -140,18 +170,13 @@ def login_view(request):
             user = None
 
         if user is not None:
-            # Check if the user is staff
+            login(request, user)
             if user.is_staff:
-                login(request, user)
-                messages.success(request, "Admin logged in successfully.")
-                return redirect('adminPage')  # Redirect to admin dashboard
+                return JsonResponse({'status': 'success', 'message': 'Admin logged in successfully.', 'redirect_url': 'adminPage'})
             else:
-                login(request, user)
-                
-                return redirect('isLoggedIn')  # Redirect to user dashboard or home
+                return JsonResponse({'status': 'success', 'message': 'Login successful.', 'redirect_url': 'isLoggedIn'})
         else:
-            messages.error(request, "Invalid email or password.")
-            return render(request, 'user_login.html')
+            return JsonResponse({'status': 'error', 'message': 'Invalid email or password.'})
 
     return render(request, 'user_login.html')
 
@@ -397,13 +422,22 @@ def checkout_view(request):
     # Your checkout logic here
     return render(request, 'checkout.html')
 
+@login_required
 def remove_from_cart(request, item_id):
+    """Remove the entire product from the cart."""
     try:
-        # Find the cart item by its ID (using the Cart model)
-        item = Cart.objects.get(id=item_id)
-        item.delete()  # This will remove the item from the cart
+        # Find the cart item by its ID and the logged-in user
+        item = Cart.objects.get(id=item_id, user=request.user)
+
+        # Completely delete the cart item
+        item.delete()
+
+        # Notify the user
+        messages.success(request, f"{item.product.name} has been removed from your cart.")
     except Cart.DoesNotExist:
-        return HttpResponse('Item not found in the cart', status=404)
+        # Handle the case where the cart item does not exist
+        messages.error(request, "The selected item was not found in your cart.")
+        return JsonResponse({'success': False, 'message': 'Cart item not found.'}, status=404)
 
     return redirect('cart_page')  # Redirect back to the cart page
 
@@ -564,9 +598,11 @@ def admin_order_management(request):
     orders = Order.objects.prefetch_related('orderitem_set', 'customer').order_by('-created_at')
     return render(request, 'admin_order_management.html', {'orders': orders})
 
+from datetime import timedelta
+
 @login_required
 def update_order_status(request, order_id):
-    """Update the status of an order."""
+    """Update the status and estimated delivery date of an order."""
     if not request.user.is_staff:
         messages.error(request, "You are not authorized to update orders.")
         return redirect('admin_login')
@@ -574,14 +610,23 @@ def update_order_status(request, order_id):
     order = get_object_or_404(Order, id=order_id)
 
     if request.method == 'POST':
+        # Get status from POST data
         status = request.POST.get('status')
+        estimated_delivery = request.POST.get('estimated_delivery')
+
+        # Update order status
         if status:
             order.status = status
-            order.save()
-            messages.success(request, f"Order status updated to {status}.")
-        else:
-            messages.error(request, "Invalid status update.")
 
+        # Update estimated delivery date (if provided)
+        if estimated_delivery:
+            order.estimated_delivery_date = estimated_delivery
+        else:
+            # Set default estimated delivery to 3 days after creation
+            order.estimated_delivery_date = order.created_at + timedelta(days=3)
+
+        order.save()
+        messages.success(request, "Order updated successfully.")
         return redirect('admin_order_management')
 
     return render(request, 'admin_update_order.html', {'order': order})
@@ -648,25 +693,42 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .models import Cart
 
+# @login_required
+# def remove_from_cart(request, item_id):
+#     try:
+#         # Find the cart item by its ID (using the Cart model)
+#         item = Cart.objects.get(id=item_id, user=request.user)
+        
+#         # If quantity is greater than 1, reduce the quantity by 1
+#         if item.quantity > 1:
+#             item.quantity -= 1
+#             item.save()
+#             messages.success(request, f"One {item.product.name} has been removed from your cart.")
+#         else:
+#             item.delete()  # If quantity is 1, remove the entire item from the cart
+#             messages.success(request, f"{item.product.name} has been removed from your cart.")
+        
+#     except Cart.DoesNotExist:
+#         return HttpResponse('Item not found in the cart', status=404)
+
+#     return redirect('cart_page')  # Redirect back to the cart page
+
+
 @login_required
 def remove_from_cart(request, item_id):
     try:
         # Find the cart item by its ID (using the Cart model)
         item = Cart.objects.get(id=item_id, user=request.user)
         
-        # If quantity is greater than 1, reduce the quantity by 1
-        if item.quantity > 1:
-            item.quantity -= 1
-            item.save()
-            messages.success(request, f"One {item.product.name} has been removed from your cart.")
-        else:
-            item.delete()  # If quantity is 1, remove the entire item from the cart
-            messages.success(request, f"{item.product.name} has been removed from your cart.")
+        # Delete the entire item from the cart
+        item.delete()
+        messages.success(request, f"{item.product.name} has been removed from your cart.")
         
     except Cart.DoesNotExist:
         return HttpResponse('Item not found in the cart', status=404)
 
     return redirect('cart_page')  # Redirect back to the cart page
+
 
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -707,6 +769,16 @@ def place_order(request):
         cart_items = Cart.objects.filter(user=user)
         total_price = sum(item.product.price * item.quantity for item in cart_items)
 
+        if not cart_items:
+            messages.error(request, "Your cart is empty.")
+            return redirect('cart_page')
+
+        # Check stock availability
+        for item in cart_items:
+            if item.product.quantity_available < item.quantity:
+                messages.error(request, f"Insufficient stock for {item.product.name}.")
+                return redirect('checkout_page')
+
         # Create Order
         order = Order.objects.create(
             customer=user,
@@ -716,8 +788,11 @@ def place_order(request):
             phone_number=phone_number,
         )
 
-        # Add Order Items
+        # Add Order Items and Reduce Stock
         for item in cart_items:
+            item.product.quantity_available -= item.quantity
+            item.product.save()
+
             OrderItem.objects.create(
                 order=order,
                 product=item.product,
@@ -728,19 +803,20 @@ def place_order(request):
         # Clear the Cart
         cart_items.delete()
 
-        # Redirect to Track Order Page
+        messages.success(request, "Your order has been placed successfully!")
         return redirect('track_order_page')
 
     return redirect('checkout_page')
+
+
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .models import Cart, Order, OrderItem
 from django.contrib import messages
-
 @login_required
 def checkout(request):
     user = request.user
-    cart_items = Cart.objects.filter(user=user)
+    cart_items = Cart.objects.filter(user=user, status='active')
     total_price = sum(item.product.price * item.quantity for item in cart_items)
 
     if request.method == 'POST':
@@ -760,21 +836,36 @@ def checkout(request):
             phone_number=phone_number,
         )
 
-        # Add items to the order
+        # Add items to the order and decrease stock
         for item in cart_items:
+            product = item.product
+
+            # Check if enough stock is available
+            if product.quantity_available < item.quantity:
+                messages.error(
+                    request,
+                    f"Insufficient stock for {product.name}. Only {product.quantity_available} available."
+                )
+                return redirect('checkout_page')
+
+            # Reduce the product stock
+            product.quantity_available -= item.quantity
+            product.save()
+
+            # Add items to the order
             OrderItem.objects.create(
                 order=order,
-                product=item.product,
+                product=product,
                 quantity=item.quantity,
-                total_price=item.product.price * item.quantity,
+                total_price=product.price * item.quantity,
             )
-        
+
         # Clear the user's cart
         cart_items.delete()
 
-        # Redirect to the track order page
+        messages.success(request, "Your order has been placed successfully!")
         return redirect('track_order_page')
-    
+
     return redirect('checkout_page')  # If not POST, redirect to checkout page
 
 @login_required
@@ -789,7 +880,52 @@ def cancel_order(request, order_id):
         item.product.quantity_available += item.quantity
         item.product.save()
 
+    # Update order status
     order.status = 'Cancelled'
     order.save()
+
     messages.success(request, "Your order has been cancelled.")
     return redirect('track_order_page')
+
+
+from django.shortcuts import render
+from .models import Product
+
+def search_results(request):
+    query = request.GET.get('query', '')
+    products = Product.objects.filter(name__icontains=query) if query else []
+    return render(request, 'search_results.html', {'query': query, 'products': products})
+
+
+from django.views.decorators.http import require_POST
+
+@login_required
+@require_POST
+def update_cart_quantity(request):
+    """Handle quantity updates (increase or decrease) for cart items."""
+    import json  # Ensure this is also imported
+    data = json.loads(request.body)
+    item_id = data.get('item_id')
+    action = data.get('action')
+
+    try:
+        cart_item = Cart.objects.get(id=item_id, user=request.user)
+        if action == 'increase':
+            if cart_item.quantity < cart_item.product.quantity_available:
+                cart_item.quantity += 1
+                cart_item.save()
+                return JsonResponse({'success': True})
+            else:
+                return JsonResponse({'success': False, 'message': 'Stock limit reached.'})
+        elif action == 'decrease':
+            if cart_item.quantity > 1:
+                cart_item.quantity -= 1
+                cart_item.save()
+                return JsonResponse({'success': True})
+            else:
+                cart_item.delete()
+                return JsonResponse({'success': True})
+    except Cart.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Cart item not found.'})
+
+    return JsonResponse({'success': False, 'message': 'Invalid action.'})

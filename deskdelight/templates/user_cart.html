@@ -6,35 +6,45 @@
     <h2>Your Cart</h2>
 
     {% if cart_items %}
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Price</th>
-                    <th>Quantity</th>
-                    <th>Total</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in cart_items %}
+        <div style="background-color: #333; color: white; padding: 15px; border-radius: 10px;">
+            <table class="table table-bordered" style="color: white; margin: 0;">
+                <thead>
                     <tr>
-                        <td>{{ item.product.name }}</td>
-                        <td>${{ item.product.price }}</td>
-                        <td>{{ item.quantity }}</td>
-                        <td>${{ item.product.price|multiply:item.quantity }}</td>
-                        <td>
-                            <form method="POST" action="{% url 'remove_from_cart' item.id %}">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-danger">Remove</button>
-                            </form>
-                        </td>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                        <th>Action</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {% for item in cart_items %}
+                        <tr style="background-color: #444;">
+                            <td>{{ item.product.name }}</td>
+                            <td>${{ item.product.price }}</td>
+                            <td>
+                                <button 
+                                    class="btn btn-outline-secondary btn-sm" 
+                                    onclick="updateCartQuantity('{{ item.id }}', 'decrease')">-</button>
+                                <span>{{ item.quantity }}</span>
+                                <button 
+                                    class="btn btn-outline-secondary btn-sm" 
+                                    onclick="updateCartQuantity('{{ item.id }}', 'increase')">+</button>
+                            </td>
+                            <td>${{ item.product.price|multiply:item.quantity }}</td>
+                            <td>
+                                <form method="POST" action="{% url 'remove_from_cart' item.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger">Remove</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
-        <h3>Total Price: ${{ total_price }}</h3>
+        <h3 class="mt-4">Total Price: ${{ total_price }}</h3>
 
         <!-- Redirect to the checkout page -->
         <a href="{% url 'checkout_page' %}" class="btn btn-success">Proceed to Checkout</a>
@@ -42,4 +52,26 @@
         <p>Your cart is empty.</p>
     {% endif %}
 </div>
+
+<!-- Inline JavaScript for Updating Cart -->
+<script>
+    function updateCartQuantity(itemId, action) {
+        fetch("{% url 'update_cart_quantity' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+            },
+            body: JSON.stringify({ item_id: itemId, action: action }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.message);
+            }
+        });
+    }
+</script>
 {% endblock %}

@@ -9,7 +9,7 @@
     <div class="container mt-5">
         <div class="row align-items-center">
             <div class="col-md-6">
-                <h1 class="text-center">Product List - {{ category|capfirst }}</h1>
+                <h1 class="text-center">Product List - {{ category }}</h1>
             </div>
             <div class="col-md-6 text-end">
                 <div class="dropdown category-dropdown">
@@ -17,9 +17,9 @@
                         Select Category
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="categoryDropdown">
+                        <li><a class="dropdown-item" href="?category=all">All Categories</a></li>
                         <li><a class="dropdown-item" href="?category=chair">Chair</a></li>
                         <li><a class="dropdown-item" href="?category=table">Table</a></li>
-                        <li><a class="dropdown-item" href="?category=all">All Categories</a></li>
                     </ul>
                 </div>
             </div>
@@ -35,14 +35,29 @@
                             <h5 class="card-title productTitle" style="text-align: center;">{{ product.name }}</h5>
                             <p class="text-success" style="text-align: center;">${{ product.price }}</p>
                             <div style="display: flex; justify-content: center; align-items: center; flex-direction: column; row-gap: 1rem;">
-                                <a href="{% url 'product_detail' product.id %}" class="btn btn-primary" style="margin-bottom: 2rem; width: 90%; margin: 0 auto;">View Details</a>
-                                <a href="#" class="btn btn-primary" style="margin-bottom: 2rem; width: 90%; margin: 0 auto;">Add to Cart</a>
+                                <a href="{% url 'product_detail' product.id %}" class="btn btn-primary" style="margin-bottom: 1rem; width: 90%;">View Details</a>
+                                {% if product.quantity_available > 0 %}
+                                    <form id="addToCartForm" method="POST" 
+                                        action="{% if user.is_authenticated %}{% url 'add_to_cart' product.id %}{% else %}{% url 'login_page' %}{% endif %}" 
+                                        style="margin-top: 10px;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-success"">Add to Cart</button>
+                                    </form>
+                                {% else %}
+                                    <p style="color: #dc3545; font-weight: bold;" class="out-stock">This product is out of stock!</p>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
                 </div>
             {% empty %}
-                <p class="text-center w-100">No products available in this category.</p>
+                <p class="text-center w-100">
+                    {% if category == 'All' %}
+                        No products available.
+                    {% else %}
+                        No products available in this category.
+                    {% endif %}
+                </p>
             {% endfor %}
         </div>
     </div>
@@ -55,8 +70,6 @@
             font-family: 'Poppins', sans-serif;
             background-color: #fafbfd;
             color: #333;
-            margin: 0;
-            padding: 0;
         }
 
         /* Navbar Styles */
@@ -105,16 +118,11 @@
             border-radius: 15px;
             transition: transform 0.4s ease, box-shadow 0.4s ease;
             overflow: hidden;
-            width: 100%;
         }
 
         .card:hover {
             transform: translateY(-10px);
             box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
-        }
-
-        .img-wrapper {
-            text-align: center;
         }
 
         .card-img-top {
@@ -130,13 +138,7 @@
         .card-title {
             font-size: 1.25rem;
             font-weight: 600;
-            margin-bottom: 0.5rem;
             color: #333;
-        }
-
-        .card-text {
-            color: #6c757d;
-            margin-bottom: 1rem;
         }
 
         .text-success {
@@ -144,7 +146,6 @@
             font-weight: bold;
         }
 
-        /* Button Styles */
         .btn-primary {
             background-color: #4c8cfa;
             border: none;
@@ -160,6 +161,25 @@
             color: white;
         }
 
+        /* .btn-success {
+            background-color: #28a745;
+            border: none;
+        } */
+        .btn-success {
+            background-color: #28a745;
+            position: relative;
+            bottom: 30px; /* Moves the button slightly up */
+            text-align: center;
+            width: 100%;
+            margin: 0 auto; /* Centers the button */
+            display: block;
+            
+        }       
+        .out-stock {
+            position: relative;
+            bottom: 15px; /* Moves the button slightly up */
+        }
+
         footer {
             background-color: #212529;
             border-top: 2px solid #e0e0e0;
@@ -171,26 +191,8 @@
         footer p {
             color: #6c757d;
             font-size: 0.9rem;
-            margin: 0;
         }
 
-        /* Animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .card {
-            animation: fadeInUp 0.5s ease-in-out;
-        }
-
-        /* Responsive Adjustments */
         @media (max-width: 768px) {
             h1.text-center {
                 font-size: 2rem;

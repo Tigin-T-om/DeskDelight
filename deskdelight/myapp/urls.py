@@ -17,7 +17,8 @@ urlpatterns = [
     path('add_to_cart/<int:product_id>/', views.add_to_cart, name='add_to_cart'),
     path('cart_page/', views.cart_page, name='cart_page'),
     path('checkout/', views.checkout_view, name='checkout'),
-    path('cart/remove/<int:item_id>/', views.remove_from_cart, name='remove_from_cart'),
+    path('remove-from-cart/<int:item_id>/', views.remove_from_cart, name='remove_from_cart'),
+
 
     # Password Reset URLs
     path('forgot_password/', views.forgot_password_page, name='forgot_password_page'),
@@ -44,6 +45,9 @@ urlpatterns = [
     path('place_order/', views.place_order, name='place_order'),
     path('track_order/', views.track_order_page, name='track_order_page'),
     path('order/cancel/<int:order_id>/', views.cancel_order, name='cancel_order'),
+    path('products/', views.product_list, name='product_list'),
+    path('search_results/', views.search_results, name='search_results'),
+    path('update-cart-quantity/', views.update_cart_quantity, name='update_cart_quantity'),
 ]
 
 

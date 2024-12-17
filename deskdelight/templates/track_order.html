@@ -3,41 +3,82 @@
 {% block title %}Track Your Order{% endblock %}
 
 {% block content %}
+<style>
+    body {
+        background: linear-gradient(to bottom, #000, #555);
+        color: #fff;
+    }
+    .card {
+        background-color: #333;
+        border: 1px solid #444;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    .card-header {
+        background-color: #444;
+        border-bottom: 1px solid #555;
+        font-size: 1.5rem;
+        font-weight: bold;
+        text-align: center;
+        color: #fff; /* Explicitly set text color to white */
+    }
+    .card-body {
+        padding: 1.5rem;
+    }
+    .table {
+        background-color: #222;
+        color: #ddd;
+    }
+    .table th {
+        background-color: #444;
+        color: #fff;
+    }
+    .table td {
+        background-color: #333;
+    }
+    .btn-danger {
+        background-color: #d9534f;
+        border-color: #d43f3a;
+    }
+</style>
+
 <div class="container mt-5">
-    <h2>Track Your Order</h2>
-    {% if orders %}
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Order ID</th>
-                    <th>Status</th>
-                    <th>Estimated Delivery</th>
-                    <th>Total Price</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for order in orders %}
-                    <tr>
-                        <td>{{ order.id }}</td>
-                        <td>{{ order.status }}</td>
-                        <td>{{ order.created_at|date:"M d, Y" }}</td>
-                        <td>${{ order.total_price }}</td>
-                        <td>
-                            {% if order.status == "Pending" %}
-                                <form method="post" action="{% url 'cancel_order' order.id %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
-                                </form>
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-            
-        </table>
-    {% else %}
-        <p>You have no orders to track.</p>
-    {% endif %}
+    <div class="card">
+        <div class="card-header">Track Your Order</div>
+        <div class="card-body">
+            {% if orders %}
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Status</th>
+                            <th>Estimated Delivery</th>
+                            <th>Total Price</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                            <tr>
+                                <td>{{ order.id }}</td>
+                                <td>{{ order.status }}</td>
+                                <td>{{ order.created_at|date:"M d, Y" }}</td>
+                                <td>${{ order.total_price }}</td>
+                                <td>
+                                    {% if order.status == "Pending" %}
+                                        <form method="post" action="{% url 'cancel_order' order.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
+                                        </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>You have no orders to track.</p>
+            {% endif %}
+        </div>
+    </div>
 </div>
 {% endblock %}

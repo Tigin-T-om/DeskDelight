@@ -25,15 +25,15 @@
                     <h2 class="text-center mb-4" style="color: #000;">Create a New Account</h2>
 
                     <!-- Registration Form -->
-                    <form method="POST" action="{% url 'register' %}">
+                    <form id="registrationForm" method="POST" action="{% url 'register' %}">
                         {% csrf_token %}
                         <div class="mb-3">
-                            <label for="registerUsername" class="form-label">First Name</label>
-                            <input type="text" class="form-control" id="registerUsername" name="fname" placeholder="Enter your First Name">
+                            <label for="registerFname" class="form-label">First Name</label>
+                            <input type="text" class="form-control" id="registerFname" name="fname" placeholder="Enter your First Name">
                         </div>
                         <div class="mb-3">
-                            <label for="registerUsername" class="form-label">Last Name</label>
-                            <input type="text" class="form-control" id="registerUsername" name="lname" placeholder="Enter your Last Name">
+                            <label for="registerLname" class="form-label">Last Name</label>
+                            <input type="text" class="form-control" id="registerLname" name="lname" placeholder="Enter your Last Name">
                         </div>
                         <div class="mb-3">
                             <label for="registerEmail" class="form-label">Email address</label>
@@ -71,24 +71,65 @@
     </div>
 </div>
 
-<!-- Footer -->
-<!-- <footer class="bg-dark py-3 mt-5">
-    <div class="container text-center">
-        <p class="mb-0" style="color: white;">&copy; 2024 My E-Commerce Store. All rights reserved.</p>
-    </div>
-</footer> -->
+<!-- JavaScript Validation -->
+<script>
+    document.getElementById('registrationForm').addEventListener('submit', function (e) {
+        const fname = document.getElementById('registerFname').value.trim();
+        const lname = document.getElementById('registerLname').value.trim();
+        const email = document.getElementById('registerEmail').value.trim();
+        const phone = document.getElementById('registerPhoneNumber').value.trim();
+        const username = document.getElementById('registerUsername').value.trim();
+        const password = document.getElementById('registerPassword').value.trim();
+        const confirmPassword = document.getElementById('registerConfirmPassword').value.trim();
 
-<!-- Bootstrap 5 JavaScript -->
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+        // Validate First Name and Last Name
+        if (fname === '' || lname === '') {
+            alert('First Name and Last Name are required.');
+            e.preventDefault();
+            return;
+        }
 
-<!-- Card Hover Effect -->
+        // Validate Email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            alert('Please enter a valid email address.');
+            e.preventDefault();
+            return;
+        }
+
+        // Validate Phone Number (10 digits only)
+        if (!/^\d{10}$/.test(phone)) {
+            alert('Phone number must be exactly 10 digits.');
+            e.preventDefault();
+            return;
+        }
+
+        // Validate Username
+        if (!/^[a-zA-Z]+$/.test(username)) {
+            alert('Username should only contain alphabetic characters.');
+            e.preventDefault();
+            return;
+        }
+
+        // Validate Passwords
+        if (password.length < 6) {
+            alert('Password should be at least 6 characters long.');
+            e.preventDefault();
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            alert('Passwords do not match.');
+            e.preventDefault();
+            return;
+        }
+
+        // Success message
+        alert('Registration successful! Redirecting...');
+    });
+</script>
+
 <style>
-.card:hover {
-    transform: translateY(-00.2rem);
-    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.2);
-}
-
 body {
     background: url('{% static 'img/background.jpg' %}') no-repeat center center fixed;
     background-size: cover;

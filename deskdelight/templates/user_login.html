@@ -5,39 +5,12 @@
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <div class="card shadow-sm" style="
-                background: rgba(255, 255, 255, 0.2); 
-                box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); 
-                backdrop-filter: blur(2px); 
-                -webkit-backdrop-filter: blur(2px); 
-                border-radius: 10px; 
-                border: 1px solid rgba(255, 255, 255, 0.18); 
-                transition: transform 0.3s ease, box-shadow 0.3s ease;
-            ">
-                <div class="card-body p-5" style="
-                    background: rgba(255, 255, 255, 0.2); 
-                    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); 
-                    backdrop-filter: blur(8.5px); 
-                    -webkit-backdrop-filter: blur(8.5px); 
-                    border-radius: 10px; 
-                    border: 1px solid rgba(255, 255, 255, 0.18);
-                ">
+            <div class="card shadow-sm custom-card">
+                <div class="card-body p-5 custom-card-body">
                     <h2 class="text-center mb-4 mainHeading">Login to Your Account</h2>
 
-                    <!-- Display messages -->
-                    {% if messages %}
-                    <div>
-                        {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-
                     <!-- Login Form -->
-                    <form method="post" action="{% url 'login_view' %}">
+                    <form id="loginForm">
                         {% csrf_token %}
                         <div class="mb-3">
                             <label for="loginEmail" class="form-label emailAddr">Email address</label>
@@ -54,8 +27,8 @@
                         <button type="submit" class="btn btn-primary w-100" style="background-color: #349e21;">Login</button>
                     </form>
 
-                    <div class="mt-3 text-center " >
-                        <a href="{% url 'register' %}" style="text-decoration: none; color: #000;"">Don't have an account? Register here</a>
+                    <div class="mt-3 text-center">
+                        <a href="{% url 'register' %}" style="text-decoration: none; color: #000;">Don't have an account? Register here</a>
                         <br>
                     </div>
                     <div class="mt-2 text-center">
@@ -67,11 +40,53 @@
     </div>
 </div>
 
-<!-- Card Hover Effect -->
+<!-- Styles for Card -->
 <style>
-.card:hover {
+.custom-card {
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.custom-card:hover {
     transform: translateY(-0.2rem);
     box-shadow: 0 12px 36px rgba(0, 0, 0, 0.2);
 }
+.custom-card-body {
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    backdrop-filter: blur(8.5px);
+    -webkit-backdrop-filter: blur(8.5px);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+}
 </style>
+
+<!-- JavaScript for Pop-Up Messages -->
+<script>
+document.getElementById('loginForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    fetch("{% url 'login_view' %}", {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert(data.message); // Replace with a custom modal if needed
+            window.location.href = data.redirect_url;
+        } else if (data.status === 'error') {
+            alert(data.message); // Replace with a custom modal if needed
+        }
+    })
+    .catch(error => console.error('Error:', error));
+});
+</script>
 {% endblock %}

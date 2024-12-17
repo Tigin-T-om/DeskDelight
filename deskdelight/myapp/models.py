@@ -42,18 +42,26 @@ class Cart(models.Model):
     def __str__(self):
         return f'{self.user.username} - {self.product.name} - {self.quantity}'
 
+def default_delivery_date():
+    return timezone.now().date() + timedelta(days=5)
+
 class Order(models.Model):
     customer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(
         max_length=20, 
-        choices=[('Pending', 'Pending'), ('Shipped', 'Shipped'), ('Delivered', 'Delivered'), ('Cancelled', 'Cancelled')],
+        choices=[
+            ('Pending', 'Pending'),
+            ('Shipped', 'Shipped'),
+            ('Delivered', 'Delivered'),
+            ('Cancelled', 'Cancelled')
+        ],
         default='Pending',
     )
     shipping_address = models.TextField()
     phone_number = models.CharField(max_length=15)
     created_at = models.DateTimeField(auto_now_add=True)
-    estimated_delivery_date = models.DateField(default=now() + timedelta(days=5))  # Add estimated delivery date
+    estimated_delivery_date = models.DateField(default=default_delivery_date)  # Use callable
 
     def __str__(self):
         return f"Order {self.id} - {self.status}"
