@@ -12,7 +12,7 @@
             <table class="table table-bordered table-striped">
                 <thead class="table-dark">
                     <tr>
-                        <th class="text-white">Order ID</th>
+                        <!-- <th class="text-white">Order ID</th> -->
                         <th class="text-white">Customer</th>
                         <th class="text-white">Products</th>
                         <th class="text-white">Quantities</th>
@@ -25,7 +25,7 @@
                 <tbody>
                     {% for order in orders %}
                     <tr>
-                        <td class="text-white">{{ order.id }}</td>
+                        <!-- <td class="text-white">{{ order.id }}</td> -->
                         <td class="text-white">{{ order.customer.username }}</td>
                         <td class="text-white">
                             {% for item in order.orderitem_set.all %}

@@ -43,8 +43,47 @@ def cart_page(request):
     """Render the user cart page."""
     return render(request, 'user_cart.html')
 
+from django.shortcuts import render
+from django.contrib import messages
+from django.core.mail import send_mail
+from django.conf import settings
+from django.http import HttpResponseRedirect
+
 def contact_page(request):
-    """Render the contact page."""
+    """Render the contact page and handle form submission."""
+    if request.method == 'POST':
+        # Get the data from the form
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        message = request.POST.get('message')
+        
+        # You can add validation if needed
+
+        # Send email or store the contact information
+        try:
+            # Send email to admin with the contact details
+            send_mail(
+                'Contact Form Submission - Deskdelight',
+                f'Name: {name}\nEmail: {email}\nMessage: {message}',
+                email,  # Sender's email
+                [settings.ADMIN_EMAIL],  # Admin email to receive the contact form submission
+            )
+
+            # Send confirmation email to the user
+            send_mail(
+                'Thank you for Contacting Us',
+                'Thank you for reaching out to us. We will get back to you shortly.',
+                settings.DEFAULT_FROM_EMAIL,  # From email set in settings
+                [email],  # Recipient is the user's email
+            )
+            
+            # Display a success message
+            messages.success(request, 'Your message has been sent successfully. We will get back to you soon!')
+            return HttpResponseRedirect(request.path)  # Redirect to the same page to show the message
+
+        except Exception as e:
+            messages.error(request, f'Error sending message: {str(e)}')
+    
     return render(request, 'contact.html')
 
 # def product_page(request):
@@ -598,11 +637,9 @@ def admin_order_management(request):
     orders = Order.objects.prefetch_related('orderitem_set', 'customer').order_by('-created_at')
     return render(request, 'admin_order_management.html', {'orders': orders})
 
-from datetime import timedelta
-
 @login_required
 def update_order_status(request, order_id):
-    """Update the status and estimated delivery date of an order."""
+    """Update the status of an order."""
     if not request.user.is_staff:
         messages.error(request, "You are not authorized to update orders.")
         return redirect('admin_login')
@@ -610,23 +647,14 @@ def update_order_status(request, order_id):
     order = get_object_or_404(Order, id=order_id)
 
     if request.method == 'POST':
-        # Get status from POST data
         status = request.POST.get('status')
-        estimated_delivery = request.POST.get('estimated_delivery')
-
-        # Update order status
         if status:
             order.status = status
-
-        # Update estimated delivery date (if provided)
-        if estimated_delivery:
-            order.estimated_delivery_date = estimated_delivery
+            order.save()
+            messages.success(request, f"Order status updated to {status}.")
         else:
-            # Set default estimated delivery to 3 days after creation
-            order.estimated_delivery_date = order.created_at + timedelta(days=3)
+            messages.error(request, "Invalid status update.")
 
-        order.save()
-        messages.success(request, "Order updated successfully.")
         return redirect('admin_order_management')
 
     return render(request, 'admin_update_order.html', {'order': order})

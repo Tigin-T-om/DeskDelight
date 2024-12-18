@@ -51,7 +51,7 @@
                         <tr>
                             <th>Order ID</th>
                             <th>Status</th>
-                            <th>Estimated Delivery</th>
+                            <!-- <th>Estimated Delivery</th> -->
                             <th>Total Price</th>
                             <th>Action</th>
                         </tr>
@@ -61,7 +61,7 @@
                             <tr>
                                 <td>{{ order.id }}</td>
                                 <td>{{ order.status }}</td>
-                                <td>{{ order.created_at|date:"M d, Y" }}</td>
+                                <!-- <td>{{ order.created_at|date:"M d, Y" }}</td> -->
                                 <td>${{ order.total_price }}</td>
                                 <td>
                                     {% if order.status == "Pending" %}

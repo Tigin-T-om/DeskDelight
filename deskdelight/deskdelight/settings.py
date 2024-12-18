@@ -132,3 +132,6 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'tigintom158@gmail.com'  # Replace with your email
 EMAIL_HOST_PASSWORD = 'jfmq seji ccmb ddwt'    # Replace with your app-specific password
 AUTH_USER_MODEL = 'myapp.CustomUser'
+
+
+ADMIN_EMAIL = 'tigintom158@gmail.com'

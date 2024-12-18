@@ -6,7 +6,7 @@
 <div class="container mt-5 card">
     <div class="card shadow-lg p-4">
         <h2 class="text-center mb-4">Checkout</h2>
-        <form method="POST" action="{% url 'place_order' %}">
+        <form id="checkout-form" method="POST" action="{% url 'place_order' %}">
             {% csrf_token %}
             
             <!-- Shipping Information -->
@@ -14,10 +14,12 @@
             <div class="mb-3">
                 <label for="shipping_address" class="form-label">Shipping Address</label>
                 <input type="text" id="shipping_address" name="shipping_address" class="form-control" required>
+                <small id="shipping_error" class="text-danger"></small>
             </div>
             <div class="mb-3">
                 <label for="phone_number" class="form-label">Phone Number</label>
                 <input type="text" id="phone_number" name="phone_number" class="form-control" required>
+                <small id="phone_error" class="text-danger"></small>
             </div>
 
             <!-- Payment Information -->
@@ -33,12 +35,54 @@
             <div class="mb-3">
                 <label for="card_details" class="form-label">Card Details</label>
                 <input type="text" id="card_details" name="card_details" class="form-control" placeholder="Card Number" required>
+                <small id="card_error" class="text-danger"></small>
             </div>
-
-            <h4 class="mb-3">Total: ${{ total_price }}</h4>
 
             <button type="submit" class="btn btn-primary btn-block">Place Order</button>
         </form>
     </div>
 </div>
+
+<script>
+    document.getElementById('checkout-form').addEventListener('submit', function(event) {
+        let isValid = true;
+
+        // Validate Shipping Address
+        const shippingAddress = document.getElementById('shipping_address');
+        const shippingError = document.getElementById('shipping_error');
+        if (shippingAddress.value.trim() === '') {
+            shippingError.textContent = "Shipping address is required.";
+            isValid = false;
+        } else {
+            shippingError.textContent = '';
+        }
+
+        // Validate Phone Number
+        const phoneNumber = document.getElementById('phone_number');
+        const phoneError = document.getElementById('phone_error');
+        const phoneRegex = /^[0-9]{10}$/; // Example: 10-digit phone number
+        if (!phoneRegex.test(phoneNumber.value)) {
+            phoneError.textContent = "Enter a valid 10-digit phone number.";
+            isValid = false;
+        } else {
+            phoneError.textContent = '';
+        }
+
+        // Validate Card Details
+        const cardDetails = document.getElementById('card_details');
+        const cardError = document.getElementById('card_error');
+        const cardRegex = /^[0-9]{16}$/; // Example: 16-digit card number
+        if (document.getElementById('payment_method').value !== 'PayPal' && !cardRegex.test(cardDetails.value)) {
+            cardError.textContent = "Enter a valid 16-digit card number.";
+            isValid = false;
+        } else {
+            cardError.textContent = '';
+        }
+
+        // Prevent form submission if validation fails
+        if (!isValid) {
+            event.preventDefault();
+        }
+    });
+</script>
 {% endblock %}
